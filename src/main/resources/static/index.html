@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Library Management System</title>
+    <!-- Modern Executive Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Barcode & QR Scanning Engines (Locally Served ZXing and Html5Qrcode) -->
+    <script src="/js/zxing.min.js"></script>
+    <script src="/js/html5-qrcode.min.js"></script>
+    <!-- Modern SaaS Light Design System -->
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+    <div class="app-layout" id="appLayout">
+
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
+        <!-- ==========================================================================
+             FIXED LEFT SIDEBAR
+             ========================================================================== -->
+        <aside class="sidebar-custom" id="appSidebar">
+            <!-- Sidebar Header -->
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-brand" onclick="showPageView('dashboard'); return false;">
+                    <div class="sidebar-brand-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                            <path d="M6 6h10M6 10h10"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="sidebar-brand-title">📖 College Library</div>
+                        <div class="sidebar-brand-sub">Management System</div>
+                    </div>
+                </a>
+                <button class="sidebar-collapse-btn" id="collapseSidebarBtn" onclick="toggleSidebarCollapse()" title="Toggle sidebar width">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect width="18" height="18" x="3" y="3" rx="2"/>
+                        <path d="M9 3v18"/>
+                        <path d="m14 9-3 3 3 3"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Sidebar Navigation Menu -->
+            <nav class="sidebar-nav" id="sidebarNav">
+                <div class="sidebar-section-title">MAIN MENU</div>
+
+                <!-- 1. Dashboard -->
+                <a class="sidebar-nav-item active" id="nav-dashboard" href="#" onclick="showPageView('dashboard'); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </span>
+                    <span class="sidebar-label">🏠 Dashboard</span>
+                </a>
+
+                <!-- 2. Scan & Issue -->
+                <a class="sidebar-nav-item" id="nav-scan" href="#" onclick="showPageView('scan'); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </span>
+                    <span class="sidebar-label">📷 Scan & Issue</span>
+                </a>
+
+                <!-- 3. Books -->
+                <a class="sidebar-nav-item" id="nav-books" href="#" onclick="showPageView('books'); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+                    </span>
+                    <span class="sidebar-label">📚 Books</span>
+                </a>
+
+                <!-- 4. Students -->
+                <a class="sidebar-nav-item" id="nav-students" href="#" onclick="showPageView('students'); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </span>
+                    <span class="sidebar-label">👥 Students</span>
+                </a>
+
+                <!-- 5. Reservations -->
+                <a class="sidebar-nav-item" id="nav-reservations" href="#" onclick="showPageView('reservations'); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </span>
+                    <span class="sidebar-label">📅 Reservations</span>
+                </a>
+
+                <!-- 6. Inventory -->
+                <a class="sidebar-nav-item" id="nav-inventory" href="#" onclick="showPageView('inventory'); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    </span>
+                    <span class="sidebar-label">📦 Inventory</span>
+                </a>
+
+                <!-- 7. Reports -->
+                <a class="sidebar-nav-item" id="nav-reports" href="#" onclick="showPageView('reports'); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </span>
+                    <span class="sidebar-label">📊 Reports</span>
+                </a>
+
+                <!-- 8. Settings -->
+                <a class="sidebar-nav-item" id="nav-settings" href="#" onclick="openSettingsModal(); return false;">
+                    <span class="sidebar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </span>
+                    <span class="sidebar-label">⚙ Settings</span>
+                </a>
+            </nav>
+
+            <!-- Sidebar Bottom Illustration & Quote -->
+            <div class="sidebar-footer-quote">
+                <div class="sidebar-quote-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                </div>
+                <div class="sidebar-quote-text">"Better Readers Build a Brighter Future"</div>
+                <div class="sidebar-quote-sub">Easwari Engineering College</div>
+            </div>
+        </aside>
+
+        <!-- ==========================================================================
+             MAIN CONTENT WRAPPER
+             ========================================================================== -->
+        <div class="app-main-content">
+
+            <!-- ======================================================================
+                 TOP HEADER NAVIGATION
+                 ====================================================================== -->
+            <header class="navbar-custom">
+                <!-- Left: Hamburger & Large Global Search Box -->
+                <div class="nav-left">
+                    <button class="nav-toggle-btn" id="toggleMobileSidebarBtn" onclick="toggleMobileSidebar()" title="Toggle Navigation">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+
+                    <div class="global-search-box">
+                        <span class="global-search-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </span>
+                        <input type="text" id="globalSearchInput" class="global-search-input" placeholder="Search books, students, or ISBN..." oninput="handleGlobalSearch(this.value)">
+                    </div>
+                </div>
+
+                <!-- Right Side: Status, Notifications & Librarian Profile -->
+                <div class="nav-actions">
+                    <!-- Real Email Status Pill Button -->
+                    <button id="openEmailSetupBtn" class="email-setup-btn" title="Configure real email delivery to student inboxes">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        <span>Real Email</span>
+                        <span id="smtpStatusBadge" class="status-pill" style="font-size:11px; padding:2px 8px;">Checking...</span>
+                    </button>
+
+                    <!-- System Status Pill -->
+                    <span class="status-pill" id="systemStatusPill">
+                        <span class="status-dot"></span> System Online
+                    </span>
+
+                    <!-- Notification Bell Icon -->
+                    <button class="nav-icon-btn" onclick="toggleNotificationDropdown()" title="System Notifications">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                        </svg>
+                        <span class="nav-badge-dot"></span>
+                    </button>
+
+                    <!-- User Avatar & Librarian Dropdown -->
+                    <div class="user-profile-menu">
+                        <button class="user-profile-btn" onclick="toggleUserDropdown()">
+                            <div class="user-avatar-circle">L</div>
+                            <div class="user-info-text">
+                                <span class="user-title">Librarian</span>
+                                <span class="user-role-sub" id="adminEmailDisplay">Admin Staff</span>
+                            </div>
+                            <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+                        </button>
+
+                        <div class="user-dropdown-panel" id="userDropdownPanel">
+                            <button class="dropdown-item" onclick="openSettingsModal()">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                Settings &amp; SMTP
+                            </button>
+                            <a class="dropdown-item" href="/student-card.html" target="_blank">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                                Student Mobile Card
+                            </a>
+                            <button class="dropdown-item danger" id="adminLogoutBtn">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Hidden Phone IP element for backward compatibility with status probe -->
+            <div id="phoneIpNote" style="display:none;"></div>
+
+            <!-- ======================================================================
+                 MAIN CONTAINER WITH DEDICATED SECTIONS & PAGE VIEWS
+                 ====================================================================== -->
+            <main class="main-wrapper">
+
+                <!-- ==================================================================
+                     PAGE 1: DASHBOARD
+                     ================================================================== -->
+                <div class="page-view active" id="page-dashboard">
+
+                    <!-- Welcome Heading & Date Selector -->
+                    <div class="welcome-banner">
+                        <div>
+                            <h1 class="welcome-greeting-title" id="welcomeGreetingText">Good Morning, Welcome to Library Dashboard</h1>
+                            <p class="welcome-greeting-sub">Manage books, students and circulation with ease.</p>
+                        </div>
+                        <div class="date-badge">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span id="currentDateDisplay">Today</span>
+                        </div>
+                    </div>
+
+                    <!-- 4 Statistics Cards (Populated from existing backend data) -->
+                    <div class="stats-grid-4">
+                        <!-- 1. Total Books -->
+                        <div class="stat-card" onclick="showPageView('books')" style="cursor:pointer;" title="View all books">
+                            <div class="stat-card-header">
+                                <div class="stat-card-icon teal">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+                                </div>
+                                <span class="stat-action-indicator">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                                </span>
+                            </div>
+                            <div>
+                                <div class="stat-number-wrap">
+                                    <span class="stat-number" id="statTotalBooksCount">--</span>
+                                </div>
+                                <div class="stat-label">Total Books</div>
+                            </div>
+                            <div class="stat-secondary">
+                                <span class="badge teal" id="statCatalogTitlesCount">Titles</span>
+                                <span>Catalog items</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Issued Today / Active Loans -->
+                        <div class="stat-card" onclick="showPageView('borrowed')" style="cursor:pointer;" title="View active borrowings">
+                            <div class="stat-card-header">
+                                <div class="stat-card-icon blue">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+                                </div>
+                                <span class="stat-action-indicator">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                                </span>
+                            </div>
+                            <div>
+                                <div class="stat-number-wrap">
+                                    <span class="stat-number" id="statIssuedTodayCount">--</span>
+                                </div>
+                                <div class="stat-label">Issued Today</div>
+                            </div>
+                            <div class="stat-secondary">
+                                <span class="badge teal">14 Days</span>
+                                <span>Standard loan term</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Due Today -->
+                        <div class="stat-card" onclick="showPageView('duetoday')" style="cursor:pointer;" title="View items due today">
+                            <div class="stat-card-header">
+                                <div class="stat-card-icon amber">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                                </div>
+                                <span class="stat-action-indicator">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                                </span>
+                            </div>
+                            <div>
+                                <div class="stat-number-wrap">
+                                    <span class="stat-number" id="statDueTodayDashboardCount">--</span>
+                                </div>
+                                <div class="stat-label">Due Today</div>
+                            </div>
+                            <div class="stat-secondary">
+                                <span class="badge amber">Grace Active</span>
+                                <span>Closes 17:00 IST</span>
+                            </div>
+                        </div>
+
+                        <!-- 4. Overdue -->
+                        <div class="stat-card" onclick="showPageView('overdue')" style="cursor:pointer;" title="View overdue records">
+                            <div class="stat-card-header">
+                                <div class="stat-card-icon red">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                </div>
+                                <span class="stat-action-indicator">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                                </span>
+                            </div>
+                            <div>
+                                <div class="stat-number-wrap">
+                                    <span class="stat-number" id="statOverdueDashboardCount">--</span>
+                                </div>
+                                <div class="stat-label">Overdue</div>
+                            </div>
+                            <div class="stat-secondary">
+                                <span class="badge red">Action Needed</span>
+                                <span>Late fine accruing</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2-COLUMN SECTION: SCANNER & QUICK ACTIONS / CATALOG -->
+                    <div class="dashboard-grid-2col">
+
+                        <!-- LEFT: SCAN STUDENT / BOOK SECTION (Connected to existing BarcodeScanner) -->
+                        <div class="saas-card" id="scanner-section">
+                            <div class="saas-card-header">
+                                <div class="saas-card-title-group">
+                                    <div class="saas-card-icon">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="saas-card-title">Scan Student / Book</h3>
+                                        <p class="saas-card-subtitle" id="cameraStatusText">Camera Scanner Ready (Code 128 / QR)</p>
+                                    </div>
+                                </div>
+                                <button class="btn-saas btn-saas-outline" onclick="openStudentCardMobile()" style="padding:6px 12px; font-size:12px;" title="Open student barcode on mobile device">
+                                    📱 Phone Barcode
+                                </button>
+                            </div>
+
+                            <div class="saas-card-body">
+                                <div class="scanner-hero-wrap">
+                                    <!-- Scan Intro Banner -->
+                                    <div class="scanner-intro-banner">
+                                        <div class="scanner-intro-text">
+                                            <h3>Scan Student / Book</h3>
+                                            <p>Use barcode or QR code to issue or return books quickly.</p>
+                                        </div>
+                                        <div class="scanner-illustration">
+                                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                <rect width="18" height="18" x="3" y="3" rx="2"/>
+                                                <path d="M7 7h.01M17 7h.01M7 17h.01"/>
+                                                <path d="M12 7v5M12 17h.01M17 12h.01M17 17h-5"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scanner Mode Switch Tabs -->
+                                    <div class="scanner-mode-tabs" id="scannerModeTabs">
+                                        <button type="button" class="scanner-mode-tab active" id="modeTabStudent" onclick="setScannerMode('student')">
+                                            <span class="step-badge">1</span>
+                                            <span>Scan Student ID</span>
+                                        </button>
+                                        <button type="button" class="scanner-mode-tab" id="modeTabBook" onclick="setScannerMode('book')">
+                                            <span class="step-badge">2</span>
+                                            <span>Scan Book Barcode</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Camera Viewport (Dual Engine: Native BarcodeDetector + ZXing/Html5Qrcode) -->
+                                    <div class="scanner-viewport-wrap">
+                                        <div id="reader" style="width:100%; display:none;"></div>
+                                        <div class="scanner-placeholder" id="scannerPlaceholder">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                                <circle cx="12" cy="13" r="4"/>
+                                            </svg>
+                                            <h4 id="scannerHeadline">Barcode &amp; QR Scanner</h4>
+                                            <p id="scannerInstruction">Click "Start Scanning" to activate camera &amp; scan student ID or book barcode.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scanner Controls -->
+                                    <div class="scanner-controls">
+                                        <select id="cameraSelect" class="form-control-saas" style="flex:2; min-width:180px;">
+                                            <option value="">Detecting cameras...</option>
+                                        </select>
+                                        <button id="startScanBtn" class="btn-saas btn-saas-teal">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                                            Start Scanning
+                                        </button>
+                                        <button id="stopScanBtn" class="btn-saas btn-saas-danger" onclick="stopAllScanners()" disabled>
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>
+                                            Stop
+                                        </button>
+                                    </div>
+
+                                    <!-- Manual Barcode / ID Input Fallback -->
+                                    <div class="manual-input-box">
+                                        <input type="text" id="manualStudentInput" class="form-control-saas" placeholder="Scan or Enter Student ID (e.g. EECIT001 or 310625205283)">
+                                        <button id="manualLookupBtn" class="btn-saas btn-saas-outline">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                            Lookup
+                                        </button>
+                                    </div>
+
+                                    <!-- Quick Barcode Test & Image Upload Bar -->
+                                    <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin-top:10px; margin-bottom:12px;">
+                                        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                            <span class="quick-scan-pill" onclick="handleScannedBarcode('EECIT001')" title="Test Yashwanthiga Student Card">👤 Yashwanthiga</span>
+                                            <span class="quick-scan-pill" onclick="handleScannedBarcode('310625205283')" title="Test Priya Student Card">👤 Priya</span>
+                                            <span class="quick-scan-pill" onclick="handleScannedBarcode('978-1-032-78600-1')" title="Test Data Science Book Barcode">📖 Data Science</span>
+                                            <span class="quick-scan-pill" onclick="handleScannedBarcode('978-0132350884')" title="Test Clean Code Book Barcode">📖 Clean Code</span>
+                                            <span class="quick-scan-pill" onclick="handleScannedBarcode('978-0134685991')" title="Test Effective Java Book Barcode">📖 Effective Java</span>
+                                        </div>
+                                        <div>
+                                            <input type="file" id="dashboardBarcodeFileInput" accept="image/*" style="display:none;" onchange="handleBarcodeFileUpload(this, barcodeScanner)">
+                                            <button type="button" class="btn-saas btn-saas-outline" onclick="document.getElementById('dashboardBarcodeFileInput').click()" style="padding:5px 10px; font-size:11.5px;" title="Scan barcode from uploaded photo or screenshot">
+                                                📁 Scan Image File
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scanned Student Profile Banner (Preserved DOM IDs for app.js) -->
+                                    <div class="student-profile-banner" id="studentProfileCard">
+                                        <div class="student-profile-row">
+                                            <div class="student-profile-avatar" id="scannedAvatar">Y</div>
+                                            <div style="flex:1;">
+                                                <div style="display:flex; align-items:center; gap:8px;">
+                                                    <span style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.5px;">Student Name:</span>
+                                                    <h4 id="scannedStudentName" style="font-size:18px; font-weight:800; color:var(--text-navy); margin:0;">Yashwanthiga</h4>
+                                                </div>
+                                                <div style="font-size:12.5px; color:var(--text-secondary); margin-top:4px;">
+                                                    <strong>Student ID:</strong> <span id="scannedStudentId" style="font-weight:700; color:var(--primary-teal); font-family:var(--font-mono);">EECIT001</span> &bull; 
+                                                    <strong>Department:</strong> <span id="scannedStudentDept">IT</span> &bull; 
+                                                    <strong>Year/Class:</strong> <span id="scannedStudentYearClass">Year 2 / Class E</span>
+                                                </div>
+                                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                                                    <strong>Email:</strong> <span id="scannedStudentEmail">yashwanthiga@gmail.com</span>
+                                                </div>
+                                            </div>
+                                            <span class="badge-status active">✓ Verified Student</span>
+                                        </div>
+                                        <div class="student-meta-grid">
+                                            <div class="student-meta-item">
+                                                <div class="student-meta-label">Campus</div>
+                                                <div class="student-meta-value">SRM RMP</div>
+                                            </div>
+                                            <div class="student-meta-item">
+                                                <div class="student-meta-label">Department</div>
+                                                <div class="student-meta-value">IT Dept</div>
+                                            </div>
+                                            <div class="student-meta-item">
+                                                <div class="student-meta-label">Loan Term</div>
+                                                <div class="student-meta-value">14 Days</div>
+                                            </div>
+                                            <div class="student-meta-item">
+                                                <div class="student-meta-label">Max Limit</div>
+                                                <div class="student-meta-value">3 Books</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Book Selection — Two Options Toolbar -->
+                                    <div class="book-selection-options-box" style="margin-top:16px; background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px 14px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px;">
+                                            <span style="font-size:13px; font-weight:700; color:var(--text-navy);">Book Selection (Two Options):</span>
+                                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                                <!-- Option 1: Scan Book -->
+                                                <button type="button" class="btn-saas btn-saas-teal" onclick="triggerScanBook()" id="btnDashboardScanBook" style="padding:7px 14px; font-size:12.5px;">
+                                                    📷 Scan Book
+                                                </button>
+                                                <!-- Option 2: Add/Select Book Manually -->
+                                                <button type="button" class="btn-saas btn-saas-outline" onclick="focusCatalogManualSelect()" id="btnDashboardManualSelect" style="padding:7px 14px; font-size:12.5px;">
+                                                    📚 Select Book Manually
+                                                </button>
+                                                <button type="button" class="btn-saas btn-saas-outline" onclick="openAddBookModalDirectly()" id="btnDashboardAddBook" style="padding:7px 14px; font-size:12.5px;">
+                                                    ➕ Add Book
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div style="font-size:11.5px; color:var(--text-muted);">
+                                            Both Option 1 (Scan ISBN/Barcode) and Option 2 (Manual selection from catalog) populate the same Book Information section below.
+                                        </div>
+                                    </div>
+
+                                    <!-- Unified Book Information Card (Populated by Option 1 or Option 2) -->
+                                    <div class="scanned-book-card" id="scannedBookCard">
+                                        <div class="scanned-book-header">
+                                            <div class="book-found-badge">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                                Book Information
+                                            </div>
+                                            <span class="badge-status active" id="scannedBookStatusBadge">Status: Available</span>
+                                        </div>
+                                        <div style="margin-top:10px; margin-bottom:8px;">
+                                            <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.5px;">Book Title:</div>
+                                            <h4 class="scanned-book-title" id="scannedBookTitle" style="font-size:18px; margin-top:2px; margin-bottom:4px;">Fundamentals of Data Science</h4>
+                                            <div class="scanned-book-authors" id="scannedBookAuthors" style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">Sanjeev J. Wagh, Manisha S. Bhende, Anuradha D. Thakare</div>
+                                        </div>
+                                        <div class="scanned-book-meta-grid">
+                                            <div class="scanned-book-meta-item">
+                                                 <span class="meta-label">ISBN:</span>
+                                                 <span class="meta-val" id="scannedBookIsbn" style="font-family:var(--font-mono); font-weight:700; color:var(--primary-teal);">978-1-032-78600-1</span>
+                                            </div>
+                                            <div class="scanned-book-meta-item">
+                                                 <span class="meta-label">Category:</span>
+                                                 <span class="meta-val" id="scannedBookCategory">Data Science</span>
+                                            </div>
+                                            <div class="scanned-book-meta-item">
+                                                 <span class="meta-label">Availability:</span>
+                                                 <span class="meta-val" id="scannedBookCopies">5 / 5 Available</span>
+                                            </div>
+                                        </div>
+                                        <button id="scannedBookIssueBtn" class="btn-saas btn-saas-teal" style="width:100%; justify-content:center; padding:12px; font-weight:700; font-size:14px; margin-top:10px;" onclick="issueSelectedBook()">
+                                            Issue Book
+                                        </button>
+                                        <button id="scannedBookReservationBtn" class="btn-saas btn-saas-amber" style="width:100%; justify-content:center; padding:12px; font-weight:700; font-size:14px; margin-top:10px; display:none;" onclick="addToReservation()">
+                                            📅 Add to Reservation
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT: QUICK ACTIONS & CURRICULUM CATALOG -->
+                        <div style="display:flex; flex-direction:column; gap:24px;">
+
+                            <!-- Quick Actions Card -->
+                            <div class="saas-card">
+                                <div class="saas-card-header">
+                                    <div class="saas-card-title-group">
+                                        <div class="saas-card-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="saas-card-title">Quick Actions</h3>
+                                            <p class="saas-card-subtitle">Common circulation shortcuts</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="saas-card-body">
+                                    <div class="quick-actions-grid">
+                                        <!-- Issue Book -->
+                                        <div class="quick-action-btn" onclick="showPageView('scan'); focusCatalog();">
+                                            <div class="quick-action-icon" style="background:var(--primary-teal-light); color:var(--primary-teal); border:1px solid var(--primary-teal-border);">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+                                            </div>
+                                            <div>
+                                                <div class="quick-action-title">📖 Issue Book</div>
+                                                <div class="quick-action-sub">Loan to student</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Return Book -->
+                                        <div class="quick-action-btn" onclick="showPageView('borrowed');">
+                                            <div class="quick-action-icon" style="background:var(--primary-emerald-light); color:var(--primary-emerald); border:1px solid var(--primary-emerald-border);">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                            </div>
+                                            <div>
+                                                <div class="quick-action-title">↩ Return Book</div>
+                                                <div class="quick-action-sub">Check in &amp; receipt</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Add Book -->
+                                        <div class="quick-action-btn" id="openAddBookBtn">
+                                            <div class="quick-action-icon" style="background:var(--accent-blue-light); color:var(--accent-blue); border:1px solid var(--accent-blue-border);">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            </div>
+                                            <div>
+                                                <div class="quick-action-title">➕ Add Book</div>
+                                                <div class="quick-action-sub">New catalog item</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Add Student -->
+                                        <div class="quick-action-btn" onclick="showPageView('students');">
+                                            <div class="quick-action-icon" style="background:var(--accent-purple-light); color:var(--accent-purple); border:1px solid var(--accent-purple-border);">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                                            </div>
+                                            <div>
+                                                <div class="quick-action-title">👤 Add Student</div>
+                                                <div class="quick-action-sub">Register borrower</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Reservation -->
+                                        <div class="quick-action-btn" onclick="showPageView('reservations');">
+                                            <div class="quick-action-icon" style="background:rgba(245, 158, 11, 0.12); color:#d97706; border:1px solid rgba(245, 158, 11, 0.3);">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                            </div>
+                                            <div>
+                                                <div class="quick-action-title">📅 Reservation</div>
+                                                <div class="quick-action-sub">Queue for books</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Curriculum Books & Issue Action Section (Connected to existing API) -->
+                            <div class="saas-card" id="catalog-section">
+                                <div class="saas-card-header">
+                                    <div class="saas-card-title-group">
+                                        <div class="saas-card-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/></svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="saas-card-title">Book Catalog</h3>
+                                            <p class="saas-card-subtitle">Select curriculum textbooks to issue</p>
+                                        </div>
+                                    </div>
+                                    <button class="btn-saas btn-saas-outline" onclick="showPageView('books')" style="padding:5px 10px; font-size:12px;">
+                                        View All &rarr;
+                                    </button>
+                                </div>
+
+                                <div class="saas-card-body">
+                                    <div style="margin-bottom:12px;">
+                                        <input type="text" id="bookSearchInput" class="form-control-saas" style="width:100%;" placeholder="Search book by title, author, ISBN...">
+                                    </div>
+
+                                    <div class="book-catalog-list" id="bookCatalogList">
+                                        <div style="text-align:center; color:var(--text-muted); padding:24px;">
+                                            Loading book catalog...
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border-subtle);">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                            <span style="font-size:12.5px; color:var(--text-muted);">Selected:</span>
+                                            <span id="selectedBookTitleDisplay" style="font-size:13px; font-weight:700; color:var(--primary-teal);">None Selected</span>
+                                        </div>
+
+                                        <button id="issueBookBtn" class="btn-saas btn-saas-teal" style="width:100%; justify-content:center; padding:12px;" disabled>
+                                            Issue Selected Book to Student
+                                        </button>
+
+                                        <button id="joinWaitlistBtn" class="btn-saas btn-saas-amber" style="display:none; width:100%; justify-content:center; padding:12px; margin-top:8px;" onclick="addToReservation()">
+                                            📅 Add to Reservation
+                                        </button>
+
+                                        <p id="actionNoticeText" style="font-size:11.5px; color:var(--text-muted); text-align:center; margin-top:8px;">
+                                            * Issuing book sets return date to <strong>14 days later</strong>, decrements stock, and sends confirmation email.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 2-COLUMN SECTION: BOOK CIRCULATION TREND & RECENT ACTIVITY -->
+                    <div class="dashboard-grid-2col">
+
+                        <!-- BOOK CIRCULATION TREND CHART -->
+                        <div class="saas-card">
+                            <div class="saas-card-header">
+                                <div class="saas-card-title-group">
+                                    <div class="saas-card-icon">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="saas-card-title">Book Circulation Trend</h3>
+                                        <p class="saas-card-subtitle">Issued vs Returned volume</p>
+                                    </div>
+                                </div>
+                                <div class="chart-controls">
+                                    <button class="chart-filter-btn active" onclick="setChartFilter('7D', this)">7 Days</button>
+                                    <button class="chart-filter-btn" onclick="setChartFilter('30D', this)">30 Days</button>
+                                    <button class="chart-filter-btn" onclick="setChartFilter('3M', this)">3 Months</button>
+                                </div>
+                            </div>
+                            <div class="saas-card-body">
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color-dot" style="background:var(--primary-teal);"></span>
+                                        <span>Issued</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color-dot" style="background:var(--primary-emerald);"></span>
+                                        <span>Returned</span>
+                                    </div>
+                                </div>
+                                <div class="chart-svg-container" id="circulationChartContainer">
+                                    <!-- Rendered dynamically via SVG in app.js -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RECENT ACTIVITY CARD -->
+                        <div class="saas-card">
+                            <div class="saas-card-header">
+                                <div class="saas-card-title-group">
+                                    <div class="saas-card-icon">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="saas-card-title">Recent Activity</h3>
+                                        <p class="saas-card-subtitle">Live circulation audit trail</p>
+                                    </div>
+                                </div>
+                                <button class="btn-saas btn-saas-outline" onclick="showPageView('history')" style="padding:5px 10px; font-size:12px;">
+                                    View Log &rarr;
+                                </button>
+                            </div>
+                            <div class="saas-card-body">
+                                <div class="activity-feed-list" id="recentActivityFeed">
+                                    <!-- Populated dynamically from real backend events -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- FULL WIDTH: DUE TODAY TABLE -->
+                    <div class="dashboard-full-row">
+                        <div class="saas-card">
+                            <div class="saas-card-header">
+                                <div class="saas-card-title-group">
+                                    <div class="saas-card-icon">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="saas-card-title">Due Today</h3>
+                                        <p class="saas-card-subtitle">Borrowings scheduled for return today (Grace period active)</p>
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:10px;">
+                                    <button class="btn-saas btn-saas-outline" onclick="showPageView('duetoday')" style="font-size:12.5px;">
+                                        View Full Monitoring &rarr;
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="saas-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Book</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboardDueTodayTableBody">
+                                        <!-- Populated dynamically via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 2: SCAN & ISSUE CIRCULATION FLOW
+                     ================================================================== -->
+                <div class="page-view" id="page-scan">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>📷 Scan &amp; Issue Circulation Desk</h2>
+                            <p>Unified circulation terminal: scan Student ID &amp; Book Barcode to issue loans instantly.</p>
+                        </div>
+                        <button class="btn-saas btn-saas-outline" onclick="showPageView('dashboard')">
+                            &larr; Back to Dashboard
+                        </button>
+                    </div>
+
+                    <div class="dashboard-grid-2col">
+                        <!-- LEFT COLUMN: LIVE CIRCULATION SCANNER TERMINAL -->
+                        <div class="saas-card" id="scanPageTerminalCard">
+                            <div class="saas-card-header">
+                                <div class="saas-card-title-group">
+                                    <div class="saas-card-icon">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="saas-card-title">Circulation Scanner Terminal</h3>
+                                        <p class="saas-card-subtitle" id="cameraStatusTextScanPage">Live Webcam Barcode Scanner</p>
+                                    </div>
+                                </div>
+                                <button class="btn-saas btn-saas-outline" onclick="openStudentCardMobile()" style="padding:6px 12px; font-size:12px;" title="Open student barcode on mobile device">
+                                    📱 Phone Barcode
+                                </button>
+                            </div>
+
+                            <div class="saas-card-body">
+                                <!-- Mode Tabs -->
+                                <div class="scanner-mode-tabs" id="scanPageModeTabs">
+                                    <button type="button" class="scanner-mode-tab active" id="scanPageModeTabStudent" onclick="setScanPageMode('student')">
+                                        <span class="step-badge">1</span>
+                                        <span>Scan Student ID</span>
+                                    </button>
+                                    <button type="button" class="scanner-mode-tab" id="scanPageModeTabBook" onclick="setScanPageMode('book')">
+                                        <span class="step-badge">2</span>
+                                        <span>Scan Book Barcode</span>
+                                    </button>
+                                </div>
+
+                                <!-- Camera Viewport -->
+                                <div class="scanner-viewport-wrap" id="scanPageViewportWrap">
+                                    <div id="readerScanPage" style="width:100%; display:none;"></div>
+                                    <div class="scanner-placeholder" id="scannerPlaceholderScanPage">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                            <circle cx="12" cy="13" r="4"/>
+                                        </svg>
+                                        <h4 id="scanPageScannerHeadline">Circulation Webcam Scanner</h4>
+                                        <p id="scanPageScannerInstruction">Click "Start Scanning" to activate camera &amp; scan student ID or book barcode.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Camera Controls -->
+                                <div class="scanner-controls">
+                                    <select id="cameraSelectScanPage" class="form-control-saas" style="flex:2; min-width:180px;">
+                                        <option value="">Detecting cameras...</option>
+                                    </select>
+                                    <button id="startScanBtnScanPage" class="btn-saas btn-saas-teal">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+                                        Start Scanning
+                                    </button>
+                                    <button id="stopScanBtnScanPage" class="btn-saas btn-saas-danger" onclick="stopAllScanners()" disabled>
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>
+                                        Stop
+                                    </button>
+                                </div>
+
+                                <!-- Manual Barcode / ID Input Fallback -->
+                                <div class="manual-input-box">
+                                    <input type="text" id="scanPageBarcodeInput" class="form-control-saas" placeholder="Scan or enter Student ID (e.g. EECIT001) or Book ISBN (e.g. 978-1-032-78600-1)">
+                                    <button id="scanPageLookupBtn" class="btn-saas btn-saas-outline" onclick="handleScanPageManualLookup()">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                        Lookup
+                                    </button>
+                                </div>
+
+                                <!-- Quick Test Chips & Image Upload -->
+                                <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px; margin-top:10px;">
+                                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                        <span class="quick-scan-pill" onclick="handleScannedBarcode('EECIT001')" title="Test Yashwanthiga Student Card">👤 Yashwanthiga</span>
+                                        <span class="quick-scan-pill" onclick="handleScannedBarcode('310625205283')" title="Test Priya Student Card">👤 Priya</span>
+                                        <span class="quick-scan-pill" onclick="handleScannedBarcode('978-1-032-78600-1')" title="Test Data Science Book Barcode">📖 Data Science</span>
+                                        <span class="quick-scan-pill" onclick="handleScannedBarcode('978-0132350884')" title="Test Clean Code Book Barcode">📖 Clean Code</span>
+                                        <span class="quick-scan-pill" onclick="handleScannedBarcode('978-0134685991')" title="Test Effective Java Book Barcode">📖 Effective Java</span>
+                                    </div>
+                                    <div>
+                                        <input type="file" id="scanPageBarcodeFileInput" accept="image/*" style="display:none;" onchange="handleBarcodeFileUpload(this, scanPageBarcodeScanner)">
+                                        <button type="button" class="btn-saas btn-saas-outline" onclick="document.getElementById('scanPageBarcodeFileInput').click()" style="padding:4px 9px; font-size:11.5px;" title="Scan barcode from uploaded photo or screenshot">
+                                            📁 Scan Image File
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN: ACTIVE CIRCULATION DESK (BOTH STUDENT ID & BOOK SCANNER TO ISSUE) -->
+                        <div style="display:flex; flex-direction:column; gap:18px;">
+                            <!-- 1. Verified Student ID Card -->
+                            <div class="saas-card" id="scanPageStudentCard">
+                                <div class="saas-card-header" style="padding:14px 18px;">
+                                    <div class="saas-card-title-group">
+                                        <span class="badge-status active">Step 1</span>
+                                        <h3 class="saas-card-title" style="font-size:15px;">Student Information</h3>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <button type="button" class="btn-saas btn-saas-teal" onclick="triggerScanStudentScanPage()" style="padding:4px 10px; font-size:11.5px;">
+                                            📷 Scan Student ID
+                                        </button>
+                                        <span class="badge-status" id="scanPageStudentStatusBadge">Waiting for Scan</span>
+                                    </div>
+                                </div>
+                                <div class="saas-card-body" style="padding:16px 18px;">
+                                    <div class="student-profile-banner" id="scanPageProfileBanner" style="display:none; margin:0; padding:14px;">
+                                        <div class="student-profile-row">
+                                            <div class="student-profile-avatar" id="scanPageAvatar">Y</div>
+                                            <div style="flex:1;">
+                                                <div style="display:flex; align-items:center; gap:8px;">
+                                                    <span style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.5px;">Student Name:</span>
+                                                    <h4 id="scanPageStudentName" style="font-size:17px; font-weight:800; color:var(--text-navy); margin:0;">Yashwanthiga</h4>
+                                                </div>
+                                                <div style="font-size:12.5px; color:var(--text-secondary); margin-top:4px;">
+                                                    <strong>Student ID:</strong> <span id="scanPageStudentId" style="font-weight:700; color:var(--primary-teal); font-family:var(--font-mono);">EECIT001</span> &bull; 
+                                                    <strong>Department:</strong> <span id="scanPageStudentDept">IT</span> &bull; 
+                                                    <strong>Year/Class:</strong> <span id="scanPageStudentYearClass">Year 2 / Class E</span>
+                                                </div>
+                                                <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+                                                    <strong>Email:</strong> <span id="scanPageStudentEmail">yashwanthiga@gmail.com</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="scanPageNoStudentPlaceholder" style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px; border:1px dashed var(--border-subtle); border-radius:var(--radius-sm);">
+                                        Point student card barcode to webcam or enter roll number above.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Verified Book Scanner Card -->
+                            <div class="saas-card" id="scanPageBookCard">
+                                <div class="saas-card-header" style="padding:14px 18px;">
+                                    <div class="saas-card-title-group">
+                                        <span class="badge-status active">Step 2</span>
+                                        <h3 class="saas-card-title" style="font-size:15px;">Book Information</h3>
+                                    </div>
+                                    <span class="badge-status" id="scanPageBookTopBadge">Waiting for Selection</span>
+                                </div>
+                                <div class="saas-card-body" style="padding:16px 18px;">
+                                    <!-- Book Selection — Two Options Controls -->
+                                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:10px 12px; margin-bottom:14px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                                            <span style="font-size:12.5px; font-weight:700; color:var(--text-navy);">Book Selection (Choose Method):</span>
+                                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                                <!-- Option 1: Scan Book -->
+                                                <button type="button" class="btn-saas btn-saas-teal" onclick="triggerScanBookScanPage()" style="padding:5px 12px; font-size:12px;">
+                                                    📷 Scan Book
+                                                </button>
+                                                <!-- Option 2: Add Book Modal -->
+                                                <button type="button" class="btn-saas btn-saas-outline" onclick="openAddBookModalDirectly()" style="padding:5px 12px; font-size:12px;">
+                                                    ➕ Add Book
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- Option 2: Manual Select Dropdown -->
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <span style="font-size:12px; color:var(--text-muted); white-space:nowrap;">Or Manual Select:</span>
+                                            <select id="scanPageBookSelectDropdown" class="form-control-saas" style="font-size:12.5px; padding:6px 10px;" onchange="handleScanPageBookDropdownChange(this.value)">
+                                                <option value="">-- Choose Book Manually from Catalog --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Scanned / Manually Selected Book Card (Unified Book Information) -->
+                                    <div class="scanned-book-card" id="scanPageScannedBookCard" style="display:none; margin-top:0;">
+                                        <div class="scanned-book-header">
+                                            <div class="book-found-badge">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                                Book Information
+                                            </div>
+                                            <span class="badge-status active" id="scanPageBookStatusBadge">Status: Available</span>
+                                        </div>
+                                        <div style="margin-top:10px; margin-bottom:8px;">
+                                            <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.5px;">Book Title:</div>
+                                            <h4 class="scanned-book-title" id="scanPageBookTitle" style="font-size:17px; margin-top:2px; margin-bottom:4px;">Fundamentals of Data Science</h4>
+                                            <div class="scanned-book-authors" id="scanPageBookAuthors" style="font-size:12.5px; color:var(--text-secondary); margin-bottom:10px;">Sanjeev J. Wagh, Manisha S. Bhende, Anuradha D. Thakare</div>
+                                        </div>
+                                        <div class="scanned-book-meta-grid" style="margin-top:10px; margin-bottom:4px;">
+                                            <div class="scanned-book-meta-item">
+                                                <span class="meta-label">ISBN:</span>
+                                                <span class="meta-val" id="scanPageBookIsbn" style="font-family:var(--font-mono); font-weight:700; color:var(--primary-teal);">978-1-032-78600-1</span>
+                                            </div>
+                                            <div class="scanned-book-meta-item">
+                                                <span class="meta-label">Category:</span>
+                                                <span class="meta-val" id="scanPageBookCategory">Data Science</span>
+                                            </div>
+                                            <div class="scanned-book-meta-item">
+                                                <span class="meta-label">Availability:</span>
+                                                <span class="meta-val" id="scanPageBookCopies">5 / 5 Available</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="scanPageNoBookPlaceholder" style="text-align:center; padding:18px; color:var(--text-muted); font-size:13px; border:1px dashed var(--border-subtle); border-radius:var(--radius-sm);">
+                                        Select a book using Option 1 (Scan Book) or Option 2 (Choose from dropdown / Add Book).
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3. Final Issue Book Action Card -->
+                            <div class="saas-card" style="border:1.5px solid var(--primary-teal-border); background:var(--bg-card-subtle);">
+                                <div class="saas-card-body" style="padding:18px;">
+                                    <button id="scanPageMainIssueBtn" class="btn-saas btn-saas-teal" style="width:100%; justify-content:center; padding:14px; font-weight:700; font-size:14px;" onclick="issueSelectedBook()" disabled>
+                                        Scan Student ID &amp; Book to Issue
+                                    </button>
+                                    <button id="scanPageReservationBtn" class="btn-saas btn-saas-amber" style="width:100%; justify-content:center; padding:14px; font-weight:700; font-size:14px; display:none;" onclick="addToReservation()">
+                                        📅 Add to Reservation
+                                    </button>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                                        <span id="scanPageNoticeText" style="font-size:11.5px; color:var(--text-muted);">
+                                            * Sets return date to 14 days later, updates inventory, and sends confirmation email.
+                                        </span>
+                                        <button type="button" class="btn-saas btn-saas-outline" style="font-size:11.5px; padding:4px 10px;" onclick="resetCirculationDesk()">
+                                            Clear / Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 3: BOOKS (BOOK CATALOG WITH SIDE OPTION SCAN BOOK)
+                     ================================================================== -->
+                <div class="page-view" id="page-books">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>📚 Library Book Catalog <span class="badge teal" id="catalogTotalCountBadge" style="font-size:13px; font-weight:700; padding:4px 10px; margin-left:10px; border-radius:20px; vertical-align:middle;">Loading titles...</span></h2>
+                            <p>Manage curriculum titles, engineering textbooks, and inventory availability.</p>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn-saas btn-saas-outline" onclick="toggleCatalogSideScanner()" id="toggleCatalogScannerBtn">
+                                📷 Scan Book Barcode
+                            </button>
+                            <button class="btn-saas btn-saas-teal" onclick="document.getElementById('addBookModal').classList.add('active');">
+                                ➕ Add Book
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Catalog Layout Grid: Main Catalog + Side Option Scan Book -->
+                    <div class="catalog-layout-grid">
+                        <!-- Main Column: Catalog Search, Filters & Books Grid -->
+                        <div class="catalog-main-col">
+                            <!-- Search & Filter Controls -->
+                            <div class="saas-card" style="margin-bottom:20px;">
+                                <div class="saas-card-body" style="padding:16px 20px;">
+                                    <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
+                                        <input type="text" id="booksViewSearchInput" class="form-control-saas" style="flex:2; min-width:240px;" placeholder="Search books by title, author, category or ISBN..." oninput="filterBooksPage(this.value)">
+                                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                            <button class="chart-filter-btn active" onclick="filterBooksByCategory('ALL', this)">All</button>
+                                            <button class="chart-filter-btn" onclick="filterBooksByCategory('Software Engineering', this)">Software</button>
+                                            <button class="chart-filter-btn" onclick="filterBooksByCategory('Java Programming', this)">Java</button>
+                                            <button class="chart-filter-btn" onclick="filterBooksByCategory('Architecture', this)">Architecture</button>
+                                            <button class="chart-filter-btn" onclick="filterBooksByCategory('Databases', this)">Databases</button>
+                                            <button class="chart-filter-btn" onclick="filterBooksByCategory('Networking', this)">Networking</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Books Grid / Table -->
+                            <div class="books-catalog-grid" id="booksPageGrid">
+                                <!-- Populated dynamically via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Side Options Panel: Scan Book -->
+                        <div class="catalog-side-panel" id="catalogSidePanel">
+                            <div class="saas-card" id="catalogSideScannerCard">
+                                <div class="saas-card-header" style="padding:14px 18px;">
+                                    <div class="saas-card-title-group">
+                                        <div class="saas-card-icon">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="saas-card-title" style="font-size:15px;">Side Option: Scan Book</h3>
+                                            <p class="saas-card-subtitle" id="cameraStatusTextCatalog">Scan textbook barcode</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="saas-card-body" style="padding:16px 18px;">
+                                    <!-- Camera Viewport -->
+                                    <div class="scanner-viewport-wrap" id="catalogViewportWrap" style="max-height:160px; margin-bottom:12px;">
+                                        <div id="readerCatalog" style="width:100%; display:none;"></div>
+                                        <div class="scanner-placeholder" id="scannerPlaceholderCatalog" style="padding:16px 10px;">
+                                            <svg style="width:28px; height:28px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                                <circle cx="12" cy="13" r="4"/>
+                                            </svg>
+                                            <h4 style="font-size:13px; margin:4px 0 2px;">Webcam Book Scanner</h4>
+                                            <p style="font-size:11px; margin:0;">Click "Start" to scan ISBN barcode.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Camera Controls -->
+                                    <div class="scanner-controls" style="margin-bottom:12px;">
+                                        <select id="cameraSelectCatalog" class="form-control-saas" style="flex:2; font-size:11.5px; padding:6px 10px;">
+                                            <option value="">Detecting cameras...</option>
+                                        </select>
+                                        <button id="startScanBtnCatalog" class="btn-saas btn-saas-teal" style="padding:6px 10px; font-size:12px;">
+                                            Start
+                                        </button>
+                                        <button id="stopScanBtnCatalog" class="btn-saas btn-saas-danger" style="padding:6px 10px; font-size:12px;" onclick="stopAllScanners()" disabled>
+                                            Stop
+                                        </button>
+                                    </div>
+
+                                    <!-- Manual ISBN Input -->
+                                    <div class="manual-input-box" style="margin-bottom:12px;">
+                                        <input type="text" id="catalogBookBarcodeInput" class="form-control-saas" style="font-size:12.5px;" placeholder="Scan or enter ISBN (e.g. 978-1-032-78600-1)">
+                                        <button class="btn-saas btn-saas-outline" onclick="lookupBookFromCatalogSide()" style="padding:6px 10px; font-size:12px;">
+                                            Verify
+                                        </button>
+                                    </div>
+
+                                    <div style="margin-bottom:14px;">
+                                        <span class="quick-scan-pill" onclick="handleScannedBarcode('978-1-032-78600-1')">
+                                            📖 Fundamentals of Data Science
+                                        </span>
+                                    </div>
+
+                                    <!-- Verified Scanned Book Card -->
+                                    <div class="scanned-book-card" id="catalogScannedBookCard" style="display:none; margin-top:0; padding:14px;">
+                                        <div class="scanned-book-header" style="margin-bottom:6px;">
+                                            <div class="book-found-badge" style="font-size:11.5px; padding:3px 8px;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                                Book Found
+                                            </div>
+                                            <span class="badge-status active" id="catalogBookStatusBadge" style="font-size:11px;">Status: Available</span>
+                                        </div>
+                                        <h4 class="scanned-book-title" id="catalogBookTitle" style="font-size:15px; margin-bottom:2px;">Fundamentals of Data Science</h4>
+                                        <div class="scanned-book-authors" id="catalogBookAuthors" style="font-size:12px; margin-bottom:8px;">Sanjeev J. Wagh, Manisha S. Bhende, Anuradha D. Thakare</div>
+                                        <div class="scanned-book-meta-grid" style="gap:6px; margin-bottom:10px;">
+                                            <div class="scanned-book-meta-item" style="padding:4px 8px;">
+                                                <span class="meta-label" style="font-size:9px;">ISBN</span>
+                                                <span class="meta-val" id="catalogBookIsbn" style="font-size:11px;">978-1-032-78600-1</span>
+                                            </div>
+                                            <div class="scanned-book-meta-item" style="padding:4px 8px;">
+                                                <span class="meta-label" style="font-size:9px;">Category</span>
+                                                <span class="meta-val" id="catalogBookCategory" style="font-size:11px;">Data Science</span>
+                                            </div>
+                                            <div class="scanned-book-meta-item" style="padding:4px 8px;">
+                                                <span class="meta-label" style="font-size:9px;">Stock</span>
+                                                <span class="meta-val" id="catalogBookCopies" style="font-size:11px;">5 / 5 Available</span>
+                                            </div>
+                                        </div>
+
+                                        <div style="display:flex; flex-direction:column; gap:6px;">
+                                            <button id="catalogQuickIssueBtn" class="btn-saas btn-saas-teal" style="width:100%; justify-content:center; padding:10px; font-size:12.5px; font-weight:700;" onclick="issueFromCatalogSide()">
+                                                📖 Issue This Book &rarr;
+                                            </button>
+                                            <button type="button" class="btn-saas btn-saas-outline" style="width:100%; justify-content:center; padding:6px; font-size:11.5px;" onclick="locateBookInGrid()">
+                                                🔍 Highlight in Grid
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 4: STUDENTS
+                     ================================================================== -->
+                <div class="page-view" id="page-students">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>👥 Registered Students Directory</h2>
+                            <p>Easwari Engineering College &bull; Information Technology Department library members.</p>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <a href="/student-card.html" target="_blank" class="btn-saas btn-saas-outline">
+                                📱 Student Phone Card
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Search Students -->
+                    <div class="saas-card" style="margin-bottom:20px;">
+                        <div class="saas-card-body" style="padding:16px 20px;">
+                            <input type="text" id="studentsSearchInput" class="form-control-saas" style="width:100%;" placeholder="Search students by name, roll number, department or email..." oninput="filterStudentsGrid(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Students Directory Grid -->
+                    <div class="student-grid-wrapper" id="studentsGridContainer">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 5: RESERVATIONS & WAITLIST
+                     ================================================================== -->
+                <div class="page-view" id="page-reservations">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>📅 Reservations</h2>
+                            <p>Students waiting for unavailable books. When returned, notify students to collect their reserved book.</p>
+                        </div>
+                    </div>
+
+                    <div class="saas-card">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <div class="saas-card-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                </div>
+                                <h3 class="saas-card-title">Book Reservations (<span id="waitlistCountBadge">0</span>)</h3>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Book</th>
+                                        <th>Reservation Date</th>
+                                        <th>Status</th>
+                                        <th style="text-align:right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="waitlistTableBody">
+                                    <!-- Populated dynamically from /api/waitlist -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 6: INVENTORY
+                     ================================================================== -->
+                <div class="page-view" id="page-inventory">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>📦 Library Inventory Management</h2>
+                            <p>Curriculum textbook inventory counts, shelf assignments, and shelf tracking.</p>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Metrics Cards -->
+                    <div class="stats-grid-4" style="margin-bottom:24px;">
+                        <div class="stat-card">
+                            <div class="stat-label">Total Inventory Stock</div>
+                            <div class="stat-number" id="invTotalCopies">--</div>
+                            <div class="stat-secondary">Textbook volumes</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Available on Shelves</div>
+                            <div class="stat-number" style="color:var(--primary-emerald);" id="invAvailableCopies">--</div>
+                            <div class="stat-secondary">Ready to borrow</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Currently Issued</div>
+                            <div class="stat-number" style="color:var(--primary-teal);" id="invIssuedCopies">--</div>
+                            <div class="stat-secondary">In student possession</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Damaged / Missing</div>
+                            <div class="stat-number" style="color:var(--text-muted);">0</div>
+                            <div class="stat-secondary">Audit clean</div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Table -->
+                    <div class="saas-card">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <h3 class="saas-card-title">Shelf Inventory Ledger</h3>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>ISBN</th>
+                                        <th>Book Title</th>
+                                        <th>Author</th>
+                                        <th>Category</th>
+                                        <th>Total Copies</th>
+                                        <th>Available</th>
+                                        <th>Rack Location</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 7: REPORTS
+                     ================================================================== -->
+                <div class="page-view" id="page-reports">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>📊 Circulation Analytics &amp; Reports</h2>
+                            <p>Operational metrics, departmental borrowing patterns, and fine collection statistics.</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid-4" style="margin-bottom:24px;">
+                        <div class="stat-card">
+                            <div class="stat-label">Registered Students</div>
+                            <div class="stat-number" id="reportStudentsCount">7</div>
+                            <div class="stat-secondary">IT Department</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Catalog Titles</div>
+                            <div class="stat-number" id="reportTitlesCount">6</div>
+                            <div class="stat-secondary">Curriculum subjects</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Transactions</div>
+                            <div class="stat-number" id="reportTxCount">--</div>
+                            <div class="stat-secondary">Lifetime issues &amp; returns</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Daily Fine Policy</div>
+                            <div class="stat-number" style="color:var(--accent-amber);" id="reportFineRate">₹2.00</div>
+                            <div class="stat-secondary">Per day overdue</div>
+                        </div>
+                    </div>
+
+                    <div class="saas-card">
+                        <div class="saas-card-header">
+                            <h3 class="saas-card-title">Circulation Summary by Department</h3>
+                        </div>
+                        <div class="saas-card-body">
+                            <div style="display:flex; flex-direction:column; gap:16px;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; font-weight:600;">
+                                        <span>Information Technology (B.Tech IT)</span>
+                                        <span>88% Active</span>
+                                    </div>
+                                    <div style="height:10px; border-radius:5px; background:var(--bg-hover); overflow:hidden;">
+                                        <div style="width:88%; height:100%; background:var(--primary-teal); border-radius:5px;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; font-weight:600;">
+                                        <span>Computer Science Engineering (CSE)</span>
+                                        <span>74% Active</span>
+                                    </div>
+                                    <div style="height:10px; border-radius:5px; background:var(--bg-hover); overflow:hidden;">
+                                        <div style="width:74%; height:100%; background:var(--accent-blue); border-radius:5px;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:13px; font-weight:600;">
+                                        <span>Electronics &amp; Communication (ECE)</span>
+                                        <span>62% Active</span>
+                                    </div>
+                                    <div style="height:10px; border-radius:5px; background:var(--bg-hover); overflow:hidden;">
+                                        <div style="width:62%; height:100%; background:var(--accent-purple); border-radius:5px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 8: DEDICATED BORROWED BOOKS PAGE
+                     ================================================================== -->
+                <div class="page-view" id="page-borrowed">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>Borrowed Books</h2>
+                            <p>Active student borrowings &bull; Standard 14-day loan period &bull; Return books with instant email confirmation.</p>
+                        </div>
+                        <button class="btn-saas btn-saas-teal" onclick="showPageView('scan'); focusCatalog();">
+                            + Issue New Book
+                        </button>
+                    </div>
+
+                    <div class="stats-grid-4" style="margin-bottom:20px;">
+                        <div class="stat-card">
+                            <div class="stat-label">Currently Borrowed</div>
+                            <div class="stat-number" id="statBorrowedTotalCount">0 Books</div>
+                            <div class="stat-secondary">Active loans</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Student Borrowers</div>
+                            <div class="stat-number" id="statBorrowedStudentsCount">0 Students</div>
+                            <div class="stat-secondary">Holding books</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Loan Term</div>
+                            <div class="stat-number" style="color:var(--primary-teal);">14 Days</div>
+                            <div class="stat-secondary">Standard loan policy</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Return Receipt</div>
+                            <div class="stat-number" style="color:var(--primary-emerald);">Instant</div>
+                            <div class="stat-secondary">Dispatched via SMTP</div>
+                        </div>
+                    </div>
+
+                    <div class="saas-card">
+                        <div class="saas-card-body" style="padding:14px 20px;">
+                            <input type="text" id="borrowedSearchInput" class="form-control-saas" style="width:100%;" placeholder="Search borrowed books by student name, roll number, or title..." oninput="filterBorrowedTable(this.value)">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Loan ID</th>
+                                        <th>Student Borrower</th>
+                                        <th>Book Details</th>
+                                        <th>Issue Date</th>
+                                        <th>Return Due Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="borrowedTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 9: BORROWING HISTORY
+                     ================================================================== -->
+                <div class="page-view" id="page-history">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>Borrowing History &amp; Active Loans</h2>
+                            <p>Complete audit record of student book loans, 14-day return deadlines, and waitlists.</p>
+                        </div>
+                        <button class="btn-saas btn-saas-outline" onclick="showPageView('dashboard')">
+                            &larr; Back to Dashboard
+                        </button>
+                    </div>
+
+                    <div class="saas-card">
+                        <div class="saas-card-header">
+                            <div style="display:flex; gap:10px;">
+                                <button id="tabActiveLoans" class="btn-saas btn-saas-teal" onclick="switchTableTab('loans')">
+                                    🔄 Active Borrowings (<span id="activeLoansCountBadge">0</span>)
+                                </button>
+                                <button id="tabWaitlist" class="btn-saas btn-saas-outline" onclick="switchTableTab('waitlist')">
+                                    ⏳ Priority Waitlist
+                                </button>
+                            </div>
+                        </div>
+                        <div id="loansTableWrapper" class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Student</th>
+                                        <th>Book Title</th>
+                                        <th>Issue Date</th>
+                                        <th>Due Date (14 Days)</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activeLoansTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 10: DUE TODAY MONITORING
+                     ================================================================== -->
+                <div class="page-view" id="page-duetoday">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>Due Today Monitoring</h2>
+                            <p>Books scheduled for return today &bull; 17:00 IST Cutoff &bull; Automated Return Reminders</p>
+                        </div>
+                        <button class="btn-saas btn-saas-outline" onclick="showPageView('dashboard')">
+                            &larr; Back to Dashboard
+                        </button>
+                    </div>
+
+                    <div class="stats-grid-4" style="margin-bottom:20px;">
+                        <div class="stat-card">
+                            <div class="stat-label">Scheduled Due Date</div>
+                            <div class="stat-number" id="statDueTodayDate" style="font-size:22px;">Today</div>
+                            <div class="stat-secondary">Cutoff 17:00 IST</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Due Today Count</div>
+                            <div class="stat-number" id="statDueTodayCount" style="color:var(--accent-amber);">3 Items</div>
+                            <div class="stat-secondary">Grace Period Active</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Daily Late Fine Rate</div>
+                            <div class="stat-number" id="statDueFineRate">₹2.00 / day</div>
+                            <div class="stat-secondary">Begins tomorrow</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">SMTP Delivery</div>
+                            <div class="stat-number" style="color:var(--primary-emerald);">Automated</div>
+                            <div class="stat-secondary">Student inbox alert</div>
+                        </div>
+                    </div>
+
+                    <div class="saas-card">
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Loan ID</th>
+                                        <th>Student Borrower</th>
+                                        <th>Book Details</th>
+                                        <th>Due Timeline</th>
+                                        <th>Fine Status</th>
+                                        <th>Reminder Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dueTodayTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 11: OVERDUE BOOKS
+                     ================================================================== -->
+                <div class="page-view" id="page-overdue">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>Overdue Books &amp; Defaulter Tracking</h2>
+                            <p>Active student loans exceeding the 14-day borrowing threshold &bull; Standard Late Fine: ₹2.00 / day</p>
+                        </div>
+                        <button class="btn-saas btn-saas-outline" onclick="showPageView('dashboard')">
+                            &larr; Back to Dashboard
+                        </button>
+                    </div>
+
+                    <div class="stats-grid-4" style="margin-bottom:20px;">
+                        <div class="stat-card">
+                            <div class="stat-label">Overdue Books</div>
+                            <div class="stat-number" id="statOverdueCount" style="color:var(--accent-red);">4 Books</div>
+                            <div class="stat-secondary">Exceeded 14 days</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Fine Accrued</div>
+                            <div class="stat-number" id="statTotalOverdueFineAccrued" style="color:var(--accent-red);">₹ 58.00</div>
+                            <div class="stat-secondary">Pending collection</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Active Late Rate</div>
+                            <div class="stat-number" id="statOverdueDailyRateBadge">₹ 2.00 / day</div>
+                            <div class="stat-secondary">Standard institutional fine</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Notice Status</div>
+                            <div class="stat-number" style="color:var(--primary-teal);">Active</div>
+                            <div class="stat-secondary">Email notifications dispatched</div>
+                        </div>
+                    </div>
+
+                    <!-- 1. OVERDUE BOOK TABLE -->
+                    <div class="saas-card" style="margin-bottom:24px;">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <div class="saas-card-icon" style="background:var(--accent-red-light); color:var(--accent-red);">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="saas-card-title">Overdue Defaulters (<span id="overdueCountBadge">0</span>)</h3>
+                                    <p class="saas-card-subtitle">Active student loans exceeding 14 days &bull; Classified by severity</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Loan ID</th>
+                                        <th>Student Borrower</th>
+                                        <th>Book Details</th>
+                                        <th>Timeline</th>
+                                        <th>Days Overdue</th>
+                                        <th>Accrued Fine</th>
+                                        <th>Severity</th>
+                                        <th style="text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overdueTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 2. DUE TODAY -->
+                    <div class="saas-card" style="margin-bottom:24px;">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <div class="saas-card-icon" style="background:var(--accent-amber-light); color:var(--accent-amber);">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="saas-card-title">Due Today &mdash; Books Scheduled for Return (<span id="overduePageDueTodayCount">0</span>)</h3>
+                                    <p class="saas-card-subtitle">Must be returned before 17:00 IST to avoid late fines</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Loan ID</th>
+                                        <th>Student Borrower</th>
+                                        <th>Book Details</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                        <th style="text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overduePageDueTodayTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. RECENT RETURNS -->
+                    <div class="saas-card" style="margin-bottom:24px;">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <div class="saas-card-icon" style="background:var(--primary-emerald-light); color:var(--primary-emerald);">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="saas-card-title">Recent Returns &mdash; Circulation Check-In Log (<span id="overduePageRecentReturnsCount">0</span>)</h3>
+                                    <p class="saas-card-subtitle">Recently returned books checked back into library catalog</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Return ID</th>
+                                        <th>Book Details</th>
+                                        <th>Borrower</th>
+                                        <th>Return Date</th>
+                                        <th>Status</th>
+                                        <th style="text-align:right;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overduePageRecentReturnsTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 4. RESERVATION QUEUE -->
+                    <div class="saas-card" style="margin-bottom:24px;">
+                        <div class="saas-card-header">
+                            <div class="saas-card-title-group">
+                                <div class="saas-card-icon" style="background:rgba(245, 158, 11, 0.12); color:#d97706;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="saas-card-title">Reservation Queue &mdash; Waiting for Unavailable Books (<span id="overduePageReservationQueueCount">0</span>)</h3>
+                                    <p class="saas-card-subtitle">Students waiting for out-of-stock books &bull; Send email notification upon return</p>
+                                </div>
+                            </div>
+                            <button class="btn-saas btn-saas-outline" onclick="showPageView('reservations')" style="font-size:12px; padding:6px 12px;">
+                                View Full Reservations &rarr;
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Book</th>
+                                        <th>Reservation Date</th>
+                                        <th>Status</th>
+                                        <th style="text-align:right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overduePageReservationQueueTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 5 & 6. QUICK ACTIONS & LIBRARY ACTIVITY (2-COL) -->
+                    <div class="dashboard-grid-2col" style="margin-bottom:24px;">
+
+                        <!-- QUICK ACTIONS -->
+                        <div class="saas-card">
+                            <div class="saas-card-header">
+                                <div class="saas-card-title-group">
+                                    <div class="saas-card-icon" style="background:var(--primary-teal-light); color:var(--primary-teal);">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="saas-card-title">Quick Actions</h3>
+                                        <p class="saas-card-subtitle">Circulation and borrowing operations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="saas-card-body">
+                                <div class="quick-actions-grid">
+                                    <!-- Issue Book -->
+                                    <div class="quick-action-btn" onclick="showPageView('scan'); focusCatalog();">
+                                        <div class="quick-action-icon" style="background:var(--primary-teal-light); color:var(--primary-teal); border:1px solid var(--primary-teal-border);">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="quick-action-title">📖 Issue Book</div>
+                                            <div class="quick-action-sub">Loan to student</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Return Book -->
+                                    <div class="quick-action-btn" onclick="showPageView('borrowed');">
+                                        <div class="quick-action-icon" style="background:var(--primary-emerald-light); color:var(--primary-emerald); border:1px solid var(--primary-emerald-border);">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="quick-action-title">↩ Return Book</div>
+                                            <div class="quick-action-sub">Check in &amp; receipt</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add Book -->
+                                    <div class="quick-action-btn" onclick="document.getElementById('addBookModal').classList.add('active');">
+                                        <div class="quick-action-icon" style="background:var(--accent-blue-light); color:var(--accent-blue); border:1px solid var(--accent-blue-border);">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="quick-action-title">➕ Add Book</div>
+                                            <div class="quick-action-sub">New catalog item</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add Student -->
+                                    <div class="quick-action-btn" onclick="showPageView('students');">
+                                        <div class="quick-action-icon" style="background:var(--accent-purple-light); color:var(--accent-purple); border:1px solid var(--accent-purple-border);">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="quick-action-title">👤 Add Student</div>
+                                            <div class="quick-action-sub">Register borrower</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Reservation -->
+                                    <div class="quick-action-btn" onclick="showPageView('reservations');">
+                                        <div class="quick-action-icon" style="background:rgba(245, 158, 11, 0.12); color:#d97706; border:1px solid rgba(245, 158, 11, 0.3);">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="quick-action-title">📅 Reservation</div>
+                                            <div class="quick-action-sub">Queue for books</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LIBRARY ACTIVITY -->
+                        <div class="saas-card">
+                            <div class="saas-card-header">
+                                <div class="saas-card-title-group">
+                                    <div class="saas-card-icon" style="background:var(--primary-teal-light); color:var(--primary-teal);">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="saas-card-title">Library Activity</h3>
+                                        <p class="saas-card-subtitle">Recent actions by the librarian</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="saas-card-body">
+                                <div class="activity-feed-list" id="overduePageActivityFeed">
+                                    <!-- Populated dynamically via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ==================================================================
+                     PAGE 12: FINES MANAGEMENT
+                     ================================================================== -->
+                <div class="page-view" id="page-fines">
+                    <div class="page-top-bar">
+                        <div class="page-title-wrap">
+                            <h2>Library Fines &amp; Penalty Management</h2>
+                            <p>Overdue fine ledger, daily rate configuration, and individual student penalty editing.</p>
+                        </div>
+                    </div>
+
+                    <!-- Fines Rate Config Card -->
+                    <div class="saas-card" style="margin-bottom:20px;">
+                        <div class="saas-card-body" style="padding:18px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+                            <div>
+                                <h4 style="font-size:15px; font-weight:700; color:var(--text-navy);">Configure Daily Overdue Fine Rate (₹ / Day)</h4>
+                                <p style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;">Standard rate applies automatically to active loans after 14-day return cutoff.</p>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="position:relative; width:130px;">
+                                    <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-navy);">₹</span>
+                                    <input type="number" id="dailyFineRateInput" class="form-control-saas" style="padding-left:28px; width:100%; font-weight:700;" value="2.00" step="0.50" min="0">
+                                </div>
+                                <button class="btn-saas btn-saas-teal" onclick="saveDailyFineRate()">Save Rate</button>
+                                <button class="btn-saas btn-saas-outline" onclick="resetDailyFineRate()">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fines Ledger Table -->
+                    <div class="saas-card">
+                        <div class="table-responsive">
+                            <table class="saas-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fine ID</th>
+                                        <th>Student</th>
+                                        <th>Book &amp; Notes</th>
+                                        <th>Days Overdue</th>
+                                        <th>Rate</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="finesTableBody">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         MODALS & OVERLAYS
+         ========================================================================== -->
+
+    <!-- 1. ADMIN LOGIN MODAL -->
+    <div class="modal-overlay" id="adminLoginModal">
+        <div class="modal-box-saas" style="max-width:440px;">
+            <div class="modal-header-saas">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="sidebar-brand-icon" style="width:36px; height:36px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+                    </div>
+                    <div>
+                        <h3>Librarian Sign In</h3>
+                        <div style="font-size:12px; color:var(--text-muted);">College Library Admin Portal</div>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" id="closeAdminLoginModalBtn" onclick="closeAdminLoginModal()" title="Close">&times;</button>
+            </div>
+            <form id="adminLoginForm">
+                <div class="modal-body-saas">
+                    <div class="form-group-saas">
+                        <label for="adminEmailInput">Administrator Email</label>
+                        <input type="email" id="adminEmailInput" class="form-control-saas" placeholder="librarian@eec.srmrmp.edu.in" required>
+                    </div>
+                    <div class="form-group-saas">
+                        <label for="adminPasswordInput">Password</label>
+                        <input type="password" id="adminPasswordInput" class="form-control-saas" placeholder="••••••••" required>
+                    </div>
+                    <button type="button" class="btn-saas btn-saas-outline" id="autoFillAdminBtn" style="width:100%; margin-bottom:12px; font-size:12.5px;">
+                        Fill Administrator Credentials (librarian@eec.srmrmp.edu.in)
+                    </button>
+                </div>
+                <div class="modal-footer-saas" style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button type="button" class="btn-saas btn-saas-outline" onclick="closeAdminLoginModal()">Cancel</button>
+                    <button type="submit" class="btn-saas btn-saas-teal" style="flex:1; justify-content:center;">
+                        Sign In to Library Dashboard
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. ADD BOOK MODAL -->
+    <div class="modal-overlay" id="addBookModal">
+        <div class="modal-box-saas">
+            <div class="modal-header-saas">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="stat-card-icon teal" style="width:34px; height:34px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </div>
+                    <h3>Add New Curriculum Book</h3>
+                </div>
+                <button type="button" class="modal-close-btn" id="closeModalBtn" onclick="closeAddBookModal()" title="Close">&times;</button>
+            </div>
+            <form id="addBookForm" onsubmit="handleAddBook(event); return false;">
+                <div class="modal-body-saas">
+                    <div class="form-group-saas">
+                        <label for="newBookTitle">Book Title *</label>
+                        <input type="text" id="newBookTitle" class="form-control-saas" placeholder="e.g. Artificial Intelligence: A Modern Approach" required>
+                    </div>
+                    <div class="form-group-saas">
+                        <label for="newBookAuthor">Author(s) *</label>
+                        <input type="text" id="newBookAuthor" class="form-control-saas" placeholder="e.g. Stuart Russell, Peter Norvig" required>
+                    </div>
+                    <div class="form-group-saas">
+                        <label for="newBookIsbn">ISBN Number *</label>
+                        <input type="text" id="newBookIsbn" class="form-control-saas" placeholder="e.g. 978-0134610993" required>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div class="form-group-saas">
+                            <label for="newBookCopies">Total Copies</label>
+                            <input type="number" id="newBookCopies" class="form-control-saas" value="3" min="1" required>
+                        </div>
+                        <div class="form-group-saas">
+                            <label for="newBookCategory">Category</label>
+                            <input type="text" id="newBookCategory" class="form-control-saas" placeholder="e.g. Computer Science" value="Software Engineering">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer-saas">
+                    <button type="button" class="btn-saas btn-saas-outline" id="cancelModalBtn" onclick="closeAddBookModal()">Cancel</button>
+                    <button type="submit" class="btn-saas btn-saas-teal">Save to Catalog</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. REAL EMAIL SETUP MODAL -->
+    <div class="modal-overlay" id="emailSetupModal">
+        <div class="modal-box-saas" style="max-width:560px;">
+            <div class="modal-header-saas">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="stat-card-icon teal" style="width:34px; height:34px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    </div>
+                    <div>
+                        <h3>Real Email Delivery Configuration</h3>
+                        <div style="font-size:12px; color:var(--text-muted);">Spring Boot JavaMailSender (Live SMTP)</div>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" id="closeEmailSetupModalBtn" onclick="closeEmailSetupModal()" title="Close">&times;</button>
+            </div>
+            <form id="emailSetupForm">
+                <div class="modal-body-saas">
+                    <p style="font-size:13px; color:var(--text-secondary); margin-bottom:14px; line-height:1.4;">
+                        Enter your library Gmail address and 16-character Google <strong>App Password</strong> to dispatch real borrow receipts, due reminders, and waitlist alerts directly to student inboxes.
+                    </p>
+                    <div class="form-group-saas">
+                        <label for="smtpUsernameInput">Gmail Sender Address</label>
+                        <input type="email" id="smtpUsernameInput" class="form-control-saas" placeholder="310625205313@eec.srmrmp.edu.in" value="310625205313@eec.srmrmp.edu.in" required>
+                    </div>
+                    <div class="form-group-saas">
+                        <label for="smtpPasswordInput">Gmail 16-Char App Password</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="password" id="smtpPasswordInput" class="form-control-saas" placeholder="e.g. oicsskossuauhssm" value="oicsskossuauhssm" required style="flex:1;">
+                            <button type="button" class="btn-saas btn-saas-outline" id="togglePwBtn">👁️</button>
+                        </div>
+                    </div>
+
+                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; margin-top:14px;">
+                        <label style="font-size:12px; font-weight:700; color:var(--text-navy-light); display:block; margin-bottom:6px;">Send Live Test Email</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="email" id="smtpTestRecipientInput" class="form-control-saas" placeholder="recipient@example.com" value="310625205313@eec.srmrmp.edu.in" style="flex:1;">
+                            <button type="button" id="btnTestRealEmail" class="btn-saas btn-saas-teal" style="font-size:12.5px;">Test Now</button>
+                        </div>
+                        <div id="smtpTestStatusBox" style="display:none; margin-top:10px; font-size:12px; padding:10px; border-radius:6px;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer-saas">
+                    <button type="button" class="btn-saas btn-saas-outline" id="cancelEmailSetupBtn" onclick="closeEmailSetupModal()">Cancel</button>
+                    <button type="submit" class="btn-saas btn-saas-teal">Save SMTP Credentials</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. ISSUE CONFIRMATION MODAL -->
+    <div class="modal-overlay" id="issueConfirmationModal">
+        <div class="modal-box-saas" style="max-width:480px;">
+            <div class="modal-header-saas">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="stat-card-icon teal" style="width:36px; height:36px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div>
+                        <h3>Book Successfully Issued!</h3>
+                        <div style="font-size:12px; color:var(--text-muted);">Circulation Transaction Complete</div>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeIssueModal()">&times;</button>
+            </div>
+            <div class="modal-body-saas">
+                <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:16px; margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:12px; color:var(--text-muted);">Student:</span>
+                        <strong style="color:var(--text-navy);" id="modalStudentName">Student Name</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:12px; color:var(--text-muted);">Student ID:</span>
+                        <span style="font-family:var(--font-mono); font-weight:700; color:var(--primary-teal);" id="modalStudentId">EECIT001</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:12px; color:var(--text-muted);">Book Title:</span>
+                        <strong style="color:var(--text-navy);" id="modalBookTitle">Clean Code</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:12px; color:var(--text-muted);">Issue Date:</span>
+                        <span id="modalIssueDate">Today</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="font-size:12px; color:var(--text-muted);">Due Date (14 Days):</span>
+                        <span style="color:var(--accent-amber); font-weight:700;" id="modalDueDate">14 Days Later</span>
+                    </div>
+                </div>
+
+                <div id="modalMailStatus" style="font-size:12.5px; padding:12px; border-radius:var(--radius-md); background:var(--primary-emerald-light); border:1px solid var(--primary-emerald-border);">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+            <div class="modal-footer-saas">
+                <button type="button" class="btn-saas btn-saas-teal" onclick="closeIssueModal()" style="width:100%; justify-content:center;">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. EDIT FINE MODAL -->
+    <div class="modal-overlay" id="editFineModal">
+        <div class="modal-box-saas">
+            <div class="modal-header-saas">
+                <h3>Edit Student Fine Record</h3>
+                <button type="button" class="modal-close-btn" onclick="closeEditFineModal()">&times;</button>
+            </div>
+            <form onsubmit="saveEditedFine(event)">
+                <input type="hidden" id="editFineRecordId">
+                <div class="modal-body-saas">
+                    <div class="form-group-saas">
+                        <label>Student</label>
+                        <div id="editFineStudentDisplay" style="font-weight:700; color:var(--text-navy);">Student Name</div>
+                    </div>
+                    <div class="form-group-saas">
+                        <label>Book Title</label>
+                        <div id="editFineBookDisplay" style="color:var(--text-secondary);">Book Title</div>
+                    </div>
+                    <div class="form-group-saas">
+                        <label>Overdue Status</label>
+                        <div id="editFineDaysDisplay" style="color:var(--accent-red); font-weight:600;">Days Overdue</div>
+                    </div>
+                    <div class="form-group-saas">
+                        <label for="editFineAmountInput">Adjusted Fine Amount (₹)</label>
+                        <input type="number" id="editFineAmountInput" class="form-control-saas" step="1.00" min="0" required>
+                    </div>
+                    <div class="form-group-saas">
+                        <label for="editFineReasonSelect">Adjustment Reason</label>
+                        <select id="editFineReasonSelect" class="form-control-saas">
+                            <option value="Administrative Discretion / First Warning">Administrative Discretion / First Warning</option>
+                            <option value="Medical Certificate Provided">Medical Certificate Provided</option>
+                            <option value="Department Head Concession">Department Head Concession</option>
+                            <option value="Paid Partial Fine">Paid Partial Fine</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer-saas">
+                    <button type="button" class="btn-saas btn-saas-outline" onclick="closeEditFineModal()">Cancel</button>
+                    <button type="submit" class="btn-saas btn-saas-teal">Save Fine Adjustment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. BOOK RETURN NOTIFICATION MODAL -->
+    <div class="modal-overlay" id="bookReturnNotifyModal">
+        <div class="modal-box-saas" style="max-width:620px;">
+            <div class="modal-header-saas">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="stat-card-icon teal" style="width:36px; height:36px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <div>
+                        <h3>Waiting Reservations Found</h3>
+                        <div style="font-size:12px; color:var(--text-muted);">Book returned &mdash; students waiting in queue</div>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeBookReturnNotifyModal()">&times;</button>
+            </div>
+            <div class="modal-body-saas">
+                <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; margin-bottom:16px;">
+                    <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.5px;">Returned Book:</div>
+                    <h4 id="returnNotifyBookTitle" style="font-size:16px; font-weight:800; color:var(--text-navy); margin:4px 0 2px 0;">Fundamentals of Data Science</h4>
+                    <div id="returnNotifyBookMeta" style="font-size:12.5px; color:var(--text-secondary);">Book has been returned to the library.</div>
+                </div>
+
+                <div style="font-size:13px; font-weight:700; color:var(--text-navy); margin-bottom:10px;">
+                    Waiting Students for this Book:
+                </div>
+
+                <div class="table-responsive" style="max-height: 240px; overflow-y:auto; border:1px solid var(--border-subtle); border-radius:var(--radius-md);">
+                    <table class="saas-table" style="margin:0;">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Reservation Date</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnNotifyWaitlistBody">
+                            <!-- Populated with waiting students -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top:14px; font-size:12px; color:var(--text-muted); line-height:1.5;">
+                    💡 <em>Click <strong>Notify Student</strong> to send an email informing them that the book is now available and they can come to the library and collect it.</em>
+                </div>
+            </div>
+            <div class="modal-footer-saas" style="display:flex; justify-content:flex-end;">
+                <button type="button" class="btn-saas btn-saas-outline" onclick="closeBookReturnNotifyModal()">Done / Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. LOAN & DEFAULTER DETAILS MODAL -->
+    <div class="modal-overlay" id="loanDetailsModal">
+        <div class="modal-box-saas" style="max-width: 600px;">
+            <div class="modal-header-saas">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="stat-card-icon teal" style="width:36px; height:36px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
+                    <div>
+                        <h3 id="loanModalHeadline">Loan &amp; Defaulter Details</h3>
+                        <div style="font-size:12px; color:var(--text-muted);" id="loanModalSub">Circulation record breakdown</div>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeLoanDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body-saas" style="padding: 20px;">
+                <!-- Student Borrower Card -->
+                <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; margin-bottom:14px;">
+                    <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:6px;">Student Borrower:</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <h4 id="loanModalStudentName" style="font-size:16px; font-weight:800; color:var(--text-navy); margin:0;">Student Name</h4>
+                            <div style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;">
+                                <strong id="loanModalStudentId" style="color:var(--primary-teal); font-family:var(--font-mono);">EECIT001</strong> &bull; 
+                                <span id="loanModalStudentDept">IT Dept</span> &bull; 
+                                <span id="loanModalStudentEmail">student@eec.srmrmp.edu.in</span>
+                            </div>
+                        </div>
+                        <span id="loanModalSeverityBadge" class="badge-status overdue">Critical</span>
+                    </div>
+                </div>
+
+                <!-- Book Information Card -->
+                <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:14px; margin-bottom:14px;">
+                    <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:var(--text-muted); letter-spacing:0.5px; margin-bottom:6px;">Book Details:</div>
+                    <h4 id="loanModalBookTitle" style="font-size:15px; font-weight:700; color:var(--text-navy); margin:0 0 4px 0;">Book Title</h4>
+                    <div style="font-size:12px; color:var(--text-muted);">
+                        Author: <span id="loanModalBookAuthor" style="color:var(--text-secondary); font-weight:600;">Author</span> &bull; 
+                        ISBN: <span id="loanModalBookIsbn" style="font-family:var(--font-mono); font-weight:600; color:var(--primary-teal);">978-0000000000</span>
+                    </div>
+                </div>
+
+                <!-- Timeline & Fine Breakdown -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Issue Date</div>
+                        <div id="loanModalIssueDate" style="font-size:14px; font-weight:700; color:var(--text-navy); margin-top:3px;">2026-08-10</div>
+                    </div>
+                    <div style="background:var(--bg-card-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:12px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Due Date (14 Days)</div>
+                        <div id="loanModalDueDate" style="font-size:14px; font-weight:700; color:var(--accent-red); margin-top:3px;">2026-08-24</div>
+                    </div>
+                </div>
+
+                <!-- Fine Calculation Details -->
+                <div style="background:var(--accent-red-light); border:1px solid var(--accent-red-border); border-radius:var(--radius-md); padding:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size:12px; color:var(--accent-red-dark); font-weight:700;">Accrued Overdue Penalty</span>
+                            <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;" id="loanModalFineFormula">Rate: ₹2.00 / day &times; 18 days overdue</div>
+                        </div>
+                        <div id="loanModalTotalFine" style="font-size:22px; font-weight:800; color:var(--accent-red-dark); font-family:var(--font-mono);">₹ 36.00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-saas" style="display:flex; justify-content:space-between; align-items:center;">
+                <button type="button" class="btn-saas btn-saas-outline" onclick="closeLoanDetailsModal()">Close</button>
+                <div style="display:flex; gap:8px;">
+                    <button type="button" id="loanModalReminderBtn" class="btn-saas btn-saas-teal" onclick="handleModalReminder()">📧 Send Reminder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="/js/scanner.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

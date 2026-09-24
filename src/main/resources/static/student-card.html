@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Digital ID Card - Smart Campus Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #060911;
+            --card-bg: #0e1526;
+            --accent-cyan: #06b6d4;
+            --accent-sky: #38bdf8;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-emerald: #10b981;
+            --text-main: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #8292a9;
+            --border-glass: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 50% 5%, rgba(99, 102, 241, 0.18) 0%, transparent 55%),
+                radial-gradient(circle at 10% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.1) 0%, transparent 45%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .header-actions {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 9px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.active-tab {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(99, 102, 241, 0.25)) !important;
+            border-color: #38bdf8 !important;
+            color: #fff !important;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+        }
+
+        .brightness-toggle {
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            color: #38bdf8;
+            cursor: pointer;
+        }
+
+        .brightness-toggle:hover {
+            background: rgba(6, 182, 212, 0.22);
+            color: #fff;
+        }
+
+        /* ID Card Container */
+        .id-card {
+            width: 100%;
+            max-width: 440px;
+            background: linear-gradient(170deg, #131c31 0%, #0c1220 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(6, 182, 212, 0.12);
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Holographic Metallic Ribbon */
+        .id-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #10b981);
+        }
+
+        .card-header {
+            padding: 22px 24px 16px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+            position: relative;
+        }
+
+        .college-logo-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.35);
+            font-weight: 800;
+            font-size: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .college-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .college-sub {
+            font-size: 12px;
+            color: var(--accent-sky);
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 22px 24px 26px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .avatar {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border: 3px solid #38bdf8;
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 17px;
+            height: 17px;
+            border-radius: 50%;
+            background: #10b981;
+            border: 3px solid #0e1526;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .student-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 23px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.2px;
+            margin-bottom: 5px;
+        }
+
+        .student-role {
+            display: inline-block;
+            padding: 3px 12px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 20px;
+            color: #34d399;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .info-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .info-item {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 9px 14px;
+        }
+
+        .info-item.full-width {
+            grid-column: span 2;
+        }
+
+        .info-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .info-value.email-value {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 12.5px;
+            word-break: break-all;
+            color: var(--accent-sky);
+        }
+
+        /* High Contrast Barcode Container for Webcam Scanning */
+        .barcode-section {
+            width: 100%;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 14px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            border: 2px solid #ffffff;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .barcode-section:hover {
+            transform: scale(1.015);
+            box-shadow: 0 12px 30px rgba(6, 182, 212, 0.3);
+        }
+
+        .barcode-tag {
+            position: absolute;
+            top: -11px;
+            background: #090d16;
+            color: #38bdf8;
+            padding: 3px 12px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            border: 1px solid rgba(56, 189, 248, 0.6);
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .barcode-img {
+            max-width: 96%;
+            height: 110px;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+
+        .barcode-raw-number {
+            margin-top: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: #090d16;
+        }
+
+        .scan-hint {
+            margin-top: 14px;
+            font-size: 11.5px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .scan-hint svg {
+            color: var(--accent-cyan);
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="header-actions">
+        <a href="/" class="nav-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Admin Dashboard
+        </a>
+        <button id="brightnessBtn" class="nav-btn brightness-toggle" onclick="toggleFullscreenBarcode()">
+            🔍 Zoom Full-Screen
+        </button>
+    </div>
+
+    <!-- STUDENT SELECTOR TABS -->
+    <div style="display:flex; flex-wrap:wrap; gap:8px; width:100%; max-width:440px; margin-bottom:14px;">
+        <button id="tabYashwanthiga" class="nav-btn student-tab-btn active-tab" data-student-id="EECIT001" style="font-weight:700; font-size:12px; padding:7px 12px;" onclick="switchStudent('EECIT001')">
+            Yashwanthiga
+        </button>
+        <button id="tabPriya" class="nav-btn student-tab-btn" data-student-id="310625205283" style="font-weight:700; font-size:12px; padding:7px 12px;" onclick="switchStudent('310625205283')">
+            Priya
+        </button>
+        <button id="tabTanisha" class="nav-btn student-tab-btn" data-student-id="EECIT002" style="font-weight:700; font-size:12px; padding:7px 12px;" onclick="switchStudent('EECIT002')">
+            Tanisha
+        </button>
+        <button id="tabKarthik" class="nav-btn student-tab-btn" data-student-id="EECIT003" style="font-weight:700; font-size:12px; padding:7px 12px;" onclick="switchStudent('EECIT003')">
+            Karthik
+        </button>
+        <button id="tabSindhureny" class="nav-btn student-tab-btn" data-student-id="EECIT004" style="font-weight:700; font-size:12px; padding:7px 12px;" onclick="switchStudent('EECIT004')">
+            Sindhureny
+        </button>
+        <button id="tabVishnu" class="nav-btn student-tab-btn" data-student-id="EECIT005" style="font-weight:700; font-size:12px; padding:7px 12px;" onclick="switchStudent('EECIT005')">
+            Vishnu
+        </button>
+        <button id="tabTarunshree" class="nav-btn student-tab-btn" data-student-id="EECIT006" style="font-weight:700; font-size:12px; padding:7px 12px;" onclick="switchStudent('EECIT006')">
+            Tarunshree
+        </button>
+        <button id="tabBookDataScience" class="nav-btn student-tab-btn" data-student-id="BOOK_DS" style="font-weight:700; font-size:12px; padding:7px 12px; background:rgba(16, 185, 129, 0.15); border-color:rgba(16, 185, 129, 0.45); color:#6ee7b7;" onclick="switchStudent('BOOK_DS')">
+            📖 Book: Data Science
+        </button>
+        <button id="tabBookCleanCode" class="nav-btn student-tab-btn" data-student-id="BOOK_CLEAN" style="font-weight:700; font-size:12px; padding:7px 12px; background:rgba(16, 185, 129, 0.15); border-color:rgba(16, 185, 129, 0.45); color:#6ee7b7;" onclick="switchStudent('BOOK_CLEAN')">
+            📖 Book: Clean Code
+        </button>
+        <button id="tabBookEffectiveJava" class="nav-btn student-tab-btn" data-student-id="BOOK_JAVA" style="font-weight:700; font-size:12px; padding:7px 12px; background:rgba(16, 185, 129, 0.15); border-color:rgba(16, 185, 129, 0.45); color:#6ee7b7;" onclick="switchStudent('BOOK_JAVA')">
+            📖 Book: Effective Java
+        </button>
+        <button id="tabBookAlgorithms" class="nav-btn student-tab-btn" data-student-id="BOOK_ALGO" style="font-weight:700; font-size:12px; padding:7px 12px; background:rgba(16, 185, 129, 0.15); border-color:rgba(16, 185, 129, 0.45); color:#6ee7b7;" onclick="switchStudent('BOOK_ALGO')">
+            📖 Book: Algorithms
+        </button>
+    </div>
+
+    <!-- DIGITAL ID CARD -->
+    <div class="id-card" id="studentCard">
+        <div class="card-header">
+            <div class="college-logo-badge">🎓</div>
+            <div class="college-name">Easwari Engineering College</div>
+            <div class="college-sub">SRM RMP Campus &bull; Smart Library Digital ID</div>
+        </div>
+
+        <div class="card-body">
+            <div class="avatar-wrap">
+                <div class="avatar" id="studentAvatar">Y</div>
+                <div class="status-dot" title="Active Student"></div>
+            </div>
+
+            <h1 class="student-name" id="studentNameDisplay">Yashwanthiga</h1>
+            <span class="student-role">Verified Student Member</span>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Student ID / Roll No</div>
+                    <div class="info-value" id="studentIdDisplay">EECIT001</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Department</div>
+                    <div class="info-value" id="studentDeptDisplay">IT</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Section</div>
+                    <div class="info-value" id="studentSectionDisplay">E</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Year</div>
+                    <div class="info-value" id="studentYearDisplay">Year 2</div>
+                </div>
+                <div class="info-item full-width">
+                    <div class="info-label">Registered College Email</div>
+                    <div class="info-value email-value" id="studentEmailDisplay">yashwanthiga@gmail.com</div>
+                </div>
+            </div>
+
+            <!-- CODE 128 BARCODE & QR CODE CONTAINER -->
+            <div style="display:flex; justify-content:center; gap:6px; width:100%; margin-top:14px; margin-bottom:8px;">
+                <button id="fmtBtnBoth" class="nav-btn fmt-btn active-tab" style="font-size:11px; padding:6px 12px;" onclick="setBarcodeFormatMode('both')">
+                    📱 Barcode + QR
+                </button>
+                <button id="fmtBtn1D" class="nav-btn fmt-btn" style="font-size:11px; padding:6px 12px;" onclick="setBarcodeFormatMode('barcode')">
+                    1D Barcode
+                </button>
+                <button id="fmtBtnQR" class="nav-btn fmt-btn" style="font-size:11px; padding:6px 12px;" onclick="setBarcodeFormatMode('qr')">
+                    2D QR Code
+                </button>
+            </div>
+
+            <div class="barcode-section" id="barcodeBox" onclick="toggleFullscreenBarcode()" title="Tap for Full-Screen Scanner Mode">
+                <!-- 1D Barcode Section -->
+                <div id="barcode1DWrap" style="width:100%;">
+                    <span class="barcode-tag" id="barcodeTagDisplay">Code 128 Barcode (Tap to Enlarge)</span>
+                    <img id="barcodeImage"
+                         class="barcode-img"
+                         src="/api/barcode/student/EECIT001?width=650&height=200"
+                         alt="Student Code 128 Barcode"
+                         onerror="renderJsBarcodeFallback()">
+                    <div class="barcode-raw-number" id="barcodeNumberDisplay">EECIT001</div>
+                </div>
+
+                <!-- 2D QR Code Section -->
+                <div id="barcodeQRWrap" style="margin-top:12px; display:flex; flex-direction:column; align-items:center; width:100%; border-top:1px dashed #cbd5e1; padding-top:10px;">
+                    <span class="barcode-tag" style="background:rgba(16, 185, 129, 0.12); border-color:#10b981; color:#059669;">
+                        ⚡ Instant-Scan QR Code
+                    </span>
+                    <img id="qrImage"
+                         style="width:160px; height:160px; object-fit:contain; margin-top:6px;"
+                         src="/api/barcode/student/EECIT001/qr?size=320"
+                         alt="QR Code">
+                    <div style="font-size:11px; color:#64748b; font-weight:600; margin-top:4px;">
+                        Scans in &lt;15ms even with phone screen glare
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; width:100%; margin-top:14px;">
+                <button onclick="toggleFullscreenBarcode()" class="nav-btn brightness-toggle" style="flex:1; justify-content:center; padding:11px; font-weight:700; border-radius:12px;">
+                    🔍 Full-Screen Presentation Mode (For Webcam)
+                </button>
+            </div>
+
+            <div class="scan-hint">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Hold phone 15-20 cm facing laptop webcam &bull; Tilt ~10° down if webcam has glare
+            </div>
+        </div>
+    </div>
+
+    <!-- FULL-SCREEN PHONE BARCODE & QR MODAL -->
+    <div id="fullscreenModal" style="display:none; position:fixed; inset:0; background:#ffffff; z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:20px; text-align:center; overflow-y:auto;" onclick="handleModalClick(event)">
+        <div id="fullscreenHeader" style="color:#0f172a; font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-family:'Outfit', sans-serif;">
+            Yashwanthiga &bull; Student ID: EECIT001 &bull; Ready to Scan
+        </div>
+
+        <div style="display:flex; gap:8px; margin-bottom:14px;">
+            <button class="nav-btn modal-fmt-btn active-tab" id="modalFmtBoth" style="background:#0f172a; color:#fff; border:1px solid #38bdf8; font-size:12px; padding:6px 14px;" onclick="setModalFormat('both'); event.stopPropagation();">
+                Both Barcode &amp; QR
+            </button>
+            <button class="nav-btn modal-fmt-btn" id="modalFmt1D" style="background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; font-size:12px; padding:6px 14px;" onclick="setModalFormat('barcode'); event.stopPropagation();">
+                1D Barcode
+            </button>
+            <button class="nav-btn modal-fmt-btn" id="modalFmtQR" style="background:#f1f5f9; color:#0f172a; border:1px solid #cbd5e1; font-size:12px; padding:6px 14px;" onclick="setModalFormat('qr'); event.stopPropagation();">
+                2D QR Code
+            </button>
+        </div>
+
+        <!-- Fullscreen 1D Barcode -->
+        <div id="modalBarcode1DWrap" style="width:100%; max-width:600px; display:flex; flex-direction:column; align-items:center;">
+            <img id="fullscreenBarcodeImg"
+                 src="/api/barcode/student/EECIT001?width=700&height=220"
+                 style="max-width:96%; height:160px; object-fit:contain; image-rendering:pixelated;"
+                 alt="Full Barcode">
+            <div id="fullscreenNumber" style="color:#0f172a; font-family:'JetBrains Mono', monospace; font-size:24px; font-weight:800; letter-spacing:4px; margin-top:8px;">
+                EECIT001
+            </div>
+        </div>
+
+        <!-- Fullscreen 2D QR Code -->
+        <div id="modalBarcodeQRWrap" style="margin-top:14px; display:flex; flex-direction:column; align-items:center;">
+            <img id="fullscreenQrImg"
+                 src="/api/barcode/student/EECIT001/qr?size=320"
+                 style="width:200px; height:200px; object-fit:contain;"
+                 alt="Full QR Code">
+            <div style="color:#475569; font-size:12px; font-weight:700; margin-top:6px;">
+                Instant QR Decode for Laptop Webcams
+            </div>
+        </div>
+
+        <div style="margin-top:20px; background:#0f172a; color:#38bdf8; font-size:13px; font-weight:700; padding:10px 24px; border-radius:30px; box-shadow:0 8px 20px rgba(0,0,0,0.2); cursor:pointer;" onclick="toggleFullscreenBarcode()">
+            Point at Laptop Webcam &bull; Tap Anywhere to Close
+        </div>
+    </div>
+
+    <!-- Locally Served JSBarcode & ZXing -->
+    <script src="/js/zxing.min.js"></script>
+    <script src="/js/jsbarcode.min.js"></script>
+    <script>
+        const STUDENTS = {
+            'EECIT001': {
+                name: 'Yashwanthiga',
+                studentId: 'EECIT001',
+                dept: 'IT',
+                section: 'E',
+                year: 'Year 2',
+                email: 'yashwanthiga@gmail.com',
+                avatar: 'Y',
+                avatarBg: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                barcode: 'EECIT001'
+            },
+            '310625205283': {
+                name: 'Priya',
+                studentId: '310625205283',
+                dept: 'IT',
+                section: 'E',
+                year: 'Year 2',
+                email: '310625205283@eec.srmrmp.edu.in',
+                avatar: 'P',
+                avatarBg: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+                barcode: '310625205283'
+            },
+            'EECIT002': {
+                name: 'Tanisha Balaji',
+                studentId: 'EECIT002',
+                dept: 'IT',
+                section: 'E',
+                year: 'Year 2',
+                email: 'tanishabalaji7@gmail.com',
+                avatar: 'T',
+                avatarBg: 'linear-gradient(135deg, #0ea5e9 0%, #10b981 100%)',
+                barcode: 'EECIT002'
+            },
+            'EECIT003': {
+                name: 'Karthik',
+                studentId: 'EECIT003',
+                dept: 'IT',
+                section: 'E',
+                year: 'Year 2',
+                email: 'karthik@eec.srmrmp.edu.in',
+                avatar: 'K',
+                avatarBg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                barcode: 'EECIT003'
+            },
+            'EECIT004': {
+                name: 'Sindhureny',
+                studentId: 'EECIT004',
+                dept: 'IT',
+                section: 'E',
+                year: 'Year 2',
+                email: 'sindhureny@eec.srmrmp.edu.in',
+                avatar: 'S',
+                avatarBg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                barcode: 'EECIT004'
+            },
+            'EECIT005': {
+                name: 'Vishnu',
+                studentId: 'EECIT005',
+                dept: 'IT',
+                section: 'E',
+                year: 'Year 2',
+                email: 'vishnu@eec.srmrmp.edu.in',
+                avatar: 'V',
+                avatarBg: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                barcode: 'EECIT005'
+            },
+            'EECIT006': {
+                name: 'Tarunshree',
+                studentId: 'EECIT006',
+                dept: 'IT',
+                section: 'E',
+                year: 'Year 2',
+                email: 'tarunshree@eec.srmrmp.edu.in',
+                avatar: 'T',
+                avatarBg: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+                barcode: 'EECIT006'
+            },
+            'BOOK_DS': {
+                name: 'Fundamentals of Data Science',
+                studentId: '978-1-032-78600-1',
+                dept: 'Computer Science',
+                section: 'Curriculum Core',
+                year: '5 Copies Available',
+                email: 'Sanjeev J. Wagh, Manisha S. Bhende, Anuradha D. Thakare',
+                avatar: '📚',
+                avatarBg: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                barcode: '978-1-032-78600-1',
+                isBook: true
+            },
+            'BOOK_CLEAN': {
+                name: 'Clean Code',
+                studentId: '978-0132350884',
+                dept: 'Software Engineering',
+                section: 'Engineering Core',
+                year: '4 Copies Available',
+                email: 'Robert C. Martin',
+                avatar: '💻',
+                avatarBg: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                barcode: '978-0132350884',
+                isBook: true
+            },
+            'BOOK_JAVA': {
+                name: 'Effective Java',
+                studentId: '978-0134685991',
+                dept: 'Java Programming',
+                section: 'Advanced Programming',
+                year: '3 Copies Available',
+                email: 'Joshua Bloch',
+                avatar: '☕',
+                avatarBg: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                barcode: '978-0134685991',
+                isBook: true
+            },
+            'BOOK_ALGO': {
+                name: 'Introduction to Algorithms',
+                studentId: '978-0262033848',
+                dept: 'Computer Science',
+                section: 'Data Structures & Algorithms',
+                year: '5 Copies Available',
+                email: 'Thomas H. Cormen',
+                avatar: '🔢',
+                avatarBg: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                barcode: '978-0262033848',
+                isBook: true
+            }
+        };
+
+        let currentStudentKey = 'EECIT001';
+
+        function switchStudent(key) {
+            const data = STUDENTS[key];
+            if (!data) return;
+            currentStudentKey = key;
+
+            document.querySelectorAll('.student-tab-btn').forEach(btn => {
+                btn.classList.toggle('active-tab', btn.dataset.studentId === key);
+            });
+
+            const av = document.getElementById('studentAvatar');
+            av.textContent = data.avatar;
+            av.style.background = data.avatarBg;
+
+            document.getElementById('studentNameDisplay').textContent = data.name;
+            document.getElementById('studentIdDisplay').textContent = data.studentId;
+            document.getElementById('studentDeptDisplay').textContent = data.dept;
+            document.getElementById('studentSectionDisplay').textContent = data.section;
+            document.getElementById('studentYearDisplay').textContent = data.year;
+            document.getElementById('studentEmailDisplay').textContent = data.email;
+
+            document.getElementById('barcodeNumberDisplay').textContent = data.barcode;
+
+            // 1D Barcode URL
+            const barcodeUrl = data.isBook
+                ? `/api/barcode/generate?data=${encodeURIComponent(data.barcode)}&width=650&height=200`
+                : `/api/barcode/student/${data.studentId}?width=650&height=200`;
+            document.getElementById('barcodeImage').src = `${barcodeUrl}&t=${Date.now()}`;
+
+            // 2D QR Code URL
+            const qrUrl = data.isBook
+                ? `/api/barcode/qr?data=${encodeURIComponent(data.barcode)}&size=320`
+                : `/api/barcode/student/${data.studentId}/qr?size=320`;
+            document.getElementById('qrImage').src = `${qrUrl}&t=${Date.now()}`;
+
+            // Fullscreen Modal URLs
+            const fullBarcodeUrl = data.isBook
+                ? `/api/barcode/generate?data=${encodeURIComponent(data.barcode)}&width=700&height=220`
+                : `/api/barcode/student/${data.studentId}?width=700&height=220`;
+            const fullQrUrl = data.isBook
+                ? `/api/barcode/qr?data=${encodeURIComponent(data.barcode)}&size=340`
+                : `/api/barcode/student/${data.studentId}/qr?size=340`;
+
+            document.getElementById('fullscreenHeader').textContent = data.isBook 
+                ? `${data.name} • ISBN: ${data.barcode} • Ready to Scan`
+                : `${data.name} • Student ID: ${data.studentId} • Ready to Scan`;
+            document.getElementById('fullscreenBarcodeImg').src = `${fullBarcodeUrl}&t=${Date.now()}`;
+            document.getElementById('fullscreenQrImg').src = `${fullQrUrl}&t=${Date.now()}`;
+            document.getElementById('fullscreenNumber').textContent = data.barcode;
+        }
+
+        let currentBarcodeFormatMode = 'both';
+
+        function setBarcodeFormatMode(mode) {
+            currentBarcodeFormatMode = mode;
+            const b1 = document.getElementById('barcode1DWrap');
+            const b2 = document.getElementById('barcodeQRWrap');
+            const btnBoth = document.getElementById('fmtBtnBoth');
+            const btn1D = document.getElementById('fmtBtn1D');
+            const btnQR = document.getElementById('fmtBtnQR');
+
+            if (btnBoth) btnBoth.classList.toggle('active-tab', mode === 'both');
+            if (btn1D) btn1D.classList.toggle('active-tab', mode === 'barcode');
+            if (btnQR) btnQR.classList.toggle('active-tab', mode === 'qr');
+
+            if (mode === 'both') {
+                if (b1) b1.style.display = 'block';
+                if (b2) b2.style.display = 'flex';
+            } else if (mode === 'barcode') {
+                if (b1) b1.style.display = 'block';
+                if (b2) b2.style.display = 'none';
+            } else if (mode === 'qr') {
+                if (b1) b1.style.display = 'none';
+                if (b2) b2.style.display = 'flex';
+            }
+        }
+
+        function setModalFormat(mode) {
+            const m1 = document.getElementById('modalBarcode1DWrap');
+            const m2 = document.getElementById('modalBarcodeQRWrap');
+            const mb = document.getElementById('modalFmtBoth');
+            const m1d = document.getElementById('modalFmt1D');
+            const mqr = document.getElementById('modalFmtQR');
+
+            if (mb) mb.classList.toggle('active-tab', mode === 'both');
+            if (m1d) m1d.classList.toggle('active-tab', mode === 'barcode');
+            if (mqr) mqr.classList.toggle('active-tab', mode === 'qr');
+
+            if (mode === 'both') {
+                if (m1) m1.style.display = 'flex';
+                if (m2) m2.style.display = 'flex';
+            } else if (mode === 'barcode') {
+                if (m1) m1.style.display = 'flex';
+                if (m2) m2.style.display = 'none';
+            } else if (mode === 'qr') {
+                if (m1) m1.style.display = 'none';
+                if (m2) m2.style.display = 'flex';
+            }
+        }
+
+        function toggleFullscreenBarcode() {
+            const modal = document.getElementById('fullscreenModal');
+            if (modal.style.display === 'none' || modal.style.display === '') {
+                modal.style.display = 'flex';
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+
+        function handleModalClick(e) {
+            // Close if clicked on modal backdrop
+            if (e.target.id === 'fullscreenModal') {
+                toggleFullscreenBarcode();
+            }
+        }
+
+        // Fallback renderer ensures barcode is visible under all circumstances
+        function renderJsBarcodeFallback() {
+            const data = STUDENTS[currentStudentKey];
+            const barcodeBox = document.getElementById('barcode1DWrap');
+            if (!document.getElementById('barcodeSvgFallback') && barcodeBox) {
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.id = "barcodeSvgFallback";
+                svg.style.maxWidth = "100%";
+                svg.style.height = "100px";
+                barcodeBox.replaceChild(svg, document.getElementById('barcodeImage'));
+                if (window.JsBarcode) {
+                    JsBarcode("#barcodeSvgFallback", data.barcode, {
+                        format: "CODE128",
+                        width: 2.8,
+                        height: 75,
+                        displayValue: false,
+                        lineColor: "#000000"
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
