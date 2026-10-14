@@ -1333,8 +1333,14 @@ function focusCatalogManualSelect() {
 
 function openAddBookModalDirectly() {
     const modal = document.getElementById('addBookModal');
-    if (modal) modal.classList.add('active');
+    if (modal) {
+        modal.classList.add('active');
+        const firstInput = document.getElementById('newBookTitle');
+        if (firstInput) setTimeout(() => firstInput.focus(), 80);
+    }
 }
+window.openAddBookModalDirectly = openAddBookModalDirectly;
+window.openAddBookModal = openAddBookModalDirectly;
 
 function updateActionButtons() {
     const issueBtn = document.getElementById('issueBookBtn');
@@ -3721,39 +3727,20 @@ function renderBorrowedPage() {
     const countTotal = document.getElementById('statBorrowedTotalCount');
     const countStudents = document.getElementById('statBorrowedStudentsCount');
 
-    const activeCount = (activeLoansList && activeLoansList.length) ? activeLoansList.length : 0;
-    const uniqueStudents = new Set((activeLoansList || []).map(t => t.studentId)).size;
+    // Only currently active unreturned loans belong in the "Borrowed Books" table
+    const activeList = (activeLoansList || []).filter(tx => tx.status === 'ISSUED' && !tx.returnDate);
+
+    const activeCount = activeList.length;
+    const uniqueStudents = new Set(activeList.map(t => t.studentId)).size;
 
     if (countTotal) countTotal.textContent = `${activeCount} Books`;
     if (countStudents) countStudents.textContent = `${uniqueStudents} Students`;
 
     if (!tbody) return;
 
-    // Use allTransactionsList (from /api/borrow/history) if available, fallback to activeLoansList
-    const listToRender = (allTransactionsList && allTransactionsList.length > 0)
-        ? allTransactionsList
-        : (activeLoansList || []);
-
-    if (listToRender && listToRender.length > 0) {
+    if (activeList.length > 0) {
         tbody.innerHTML = '';
-        listToRender.forEach(tx => {
-            const isReturned = (tx.status === 'RETURNED' || tx.returnDate);
-            const statusBadge = isReturned
-                ? `<span class="badge-status returned" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; font-weight:700;">✓ Returned</span>`
-                : `<span class="badge-status active" style="font-weight:700;">Active Loan</span>`;
-
-            const actionBtn = isReturned
-                ? `<span style="display:inline-flex; align-items:center; gap:4px; color:#059669; font-weight:700; font-size:12px; background:#f0fdf4; padding:5px 12px; border-radius:6px; border:1px solid #bbf7d0;">
-                     ✓ Returned (${tx.returnDate || 'Completed'})
-                   </span>`
-                : `<button onclick="handleReturnBook(${tx.id})" class="btn-saas btn-saas-outline" style="padding:5px 12px; font-size:12px; font-weight:600;">
-                     ↩ Return Book
-                   </button>`;
-
-            const returnDueDisplay = isReturned
-                ? `<span style="font-family:var(--font-mono); color:#059669; font-weight:600;">Returned: ${tx.returnDate}</span>`
-                : `<span style="font-family:var(--font-mono); color:var(--accent-amber); font-weight:700;">${tx.dueDate || '14 Days'}</span>`;
-
+        activeList.forEach(tx => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="font-family:var(--font-mono); font-weight:700; color:var(--primary-teal);">#TX-${tx.id}</td>
@@ -3766,14 +3753,28 @@ function renderBorrowedPage() {
                     ${tx.bookAuthor ? `<div style="font-size:11px; color:var(--text-muted);">${tx.bookAuthor}</div>` : ''}
                 </td>
                 <td style="color:var(--text-secondary); font-size:12.5px;">${tx.issueDate || 'Today'}</td>
-                <td>${returnDueDisplay}</td>
-                <td>${statusBadge}</td>
-                <td>${actionBtn}</td>
+                <td>
+                    <span style="font-family:var(--font-mono); color:var(--accent-amber); font-weight:700;">${tx.dueDate || '14 Days'}</span>
+                </td>
+                <td><span class="badge-status active" style="font-weight:700;">Active Loan</span></td>
+                <td>
+                    <button onclick="handleReturnBook(${tx.id})" class="btn-saas btn-saas-outline" style="padding:5px 12px; font-size:12px; font-weight:600;">
+                        ↩ Return Book
+                    </button>
+                </td>
             `;
             tbody.appendChild(tr);
         });
     } else {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:32px;">No borrowing records found in library database. Issue a book to get started.</td></tr>`;
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align:center; color:var(--text-muted); padding:36px;">
+                    <div style="font-size:26px; margin-bottom:8px;">✅</div>
+                    <div style="font-weight:700; color:var(--text-navy); font-size:15px; margin-bottom:4px;">No Active Borrowed Books</div>
+                    <div style="font-size:12.5px; color:var(--text-muted);">All books have been returned to library inventory.</div>
+                </td>
+            </tr>
+        `;
     }
 }
 
