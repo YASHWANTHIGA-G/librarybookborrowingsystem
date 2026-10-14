@@ -2583,22 +2583,26 @@ function switchMailTab(tab) {
     currentMailTab = tab;
     const tabRelay = document.getElementById('mailTabRelay');
     const tabBrevo = document.getElementById('mailTabBrevo');
+    const tabResend = document.getElementById('mailTabResend');
     const tabSmtp = document.getElementById('mailTabSmtp');
 
     const btnRelay = document.getElementById('tabRelayBtn');
     const btnBrevo = document.getElementById('tabBrevoBtn');
+    const btnResend = document.getElementById('tabResendBtn');
     const btnSmtp = document.getElementById('tabSmtpBtn');
 
     if (tabRelay) tabRelay.style.display = (tab === 'relay') ? 'block' : 'none';
     if (tabBrevo) tabBrevo.style.display = (tab === 'brevo') ? 'block' : 'none';
+    if (tabResend) tabResend.style.display = (tab === 'resend') ? 'block' : 'none';
     if (tabSmtp) tabSmtp.style.display = (tab === 'smtp') ? 'block' : 'none';
 
     const activeStyle = 'background:var(--primary-teal); color:#fff; font-weight:600;';
     const inactiveStyle = 'background:transparent; color:var(--text-secondary); font-weight:normal;';
 
-    if (btnRelay) btnRelay.style.cssText = (tab === 'relay') ? 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + inactiveStyle;
-    if (btnBrevo) btnBrevo.style.cssText = (tab === 'brevo') ? 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + inactiveStyle;
-    if (btnSmtp) btnSmtp.style.cssText = (tab === 'smtp') ? 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + inactiveStyle;
+    if (btnRelay) btnRelay.style.cssText = (tab === 'relay') ? 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + inactiveStyle;
+    if (btnBrevo) btnBrevo.style.cssText = (tab === 'brevo') ? 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + inactiveStyle;
+    if (btnResend) btnResend.style.cssText = (tab === 'resend') ? 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + inactiveStyle;
+    if (btnSmtp) btnSmtp.style.cssText = (tab === 'smtp') ? 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; ' + inactiveStyle;
 }
 window.switchMailTab = switchMailTab;
 
@@ -2656,14 +2660,19 @@ async function handleSaveSmtp(e) {
     if (e && e.preventDefault) e.preventDefault();
     const relayUrl = document.getElementById('mailRelayUrlInput') ? document.getElementById('mailRelayUrlInput').value.trim() : '';
     const brevoKey = document.getElementById('brevoApiKeyInput') ? document.getElementById('brevoApiKeyInput').value.trim() : '';
-    const username = document.getElementById('smtpUsernameInput') ? document.getElementById('smtpUsernameInput').value.trim() : '';
+    const brevoSenderEmail = document.getElementById('brevoSenderEmailInput') ? document.getElementById('brevoSenderEmailInput').value.trim() : '';
+    const resendKey = document.getElementById('resendApiKeyInput') ? document.getElementById('resendApiKeyInput').value.trim() : '';
+    let username = document.getElementById('smtpUsernameInput') ? document.getElementById('smtpUsernameInput').value.trim() : '';
+    if (brevoSenderEmail && (currentMailTab === 'brevo' || !username)) {
+        username = brevoSenderEmail;
+    }
     const password = document.getElementById('smtpPasswordInput') ? document.getElementById('smtpPasswordInput').value.trim() : '';
 
     try {
         const res = await fetch('/api/system/mail/config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ relayUrl, brevoKey, username, password })
+            body: JSON.stringify({ relayUrl, brevoKey, resendKey, username, password })
         });
 
         const data = await res.json();

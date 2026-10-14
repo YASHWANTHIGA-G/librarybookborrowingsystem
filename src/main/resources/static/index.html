@@ -1950,9 +1950,10 @@
 
                     <!-- Provider Selector Tabs -->
                     <div style="display:flex; gap:6px; margin-bottom:16px; background:var(--bg-card-subtle); padding:4px; border-radius:10px; border:1px solid var(--border-subtle);">
-                        <button type="button" id="tabRelayBtn" class="btn-saas" style="flex:1; font-size:12px; padding:8px 10px; border-radius:8px; background:var(--primary-teal); color:#fff; border:none; font-weight:600;" onclick="switchMailTab('relay')">⚡ Google Relay (Render)</button>
-                        <button type="button" id="tabBrevoBtn" class="btn-saas btn-saas-outline" style="flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; color:var(--text-secondary);" onclick="switchMailTab('brevo')">🔑 Brevo API</button>
-                        <button type="button" id="tabSmtpBtn" class="btn-saas btn-saas-outline" style="flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; color:var(--text-secondary);" onclick="switchMailTab('smtp')">📧 Gmail SMTP (Local)</button>
+                        <button type="button" id="tabRelayBtn" class="btn-saas" style="flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; background:var(--primary-teal); color:#fff; border:none; font-weight:600;" onclick="switchMailTab('relay')">⚡ Google Relay</button>
+                        <button type="button" id="tabBrevoBtn" class="btn-saas btn-saas-outline" style="flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; color:var(--text-secondary);" onclick="switchMailTab('brevo')">🔑 Brevo API</button>
+                        <button type="button" id="tabResendBtn" class="btn-saas btn-saas-outline" style="flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; color:var(--text-secondary);" onclick="switchMailTab('resend')">🚀 Resend API</button>
+                        <button type="button" id="tabSmtpBtn" class="btn-saas btn-saas-outline" style="flex:1; font-size:11.5px; padding:8px 6px; border-radius:8px; border:none; color:var(--text-secondary);" onclick="switchMailTab('smtp')">📧 SMTP (Local)</button>
                     </div>
 
                     <!-- TAB 1: Google Apps Script HTTPS Relay (Recommended) -->
@@ -1960,7 +1961,7 @@
                         <div class="form-group-saas">
                             <label for="mailRelayUrlInput" style="display:flex; justify-content:space-between; align-items:center;">
                                 <span>Google Apps Script Web App URL</span>
-                                <span style="font-size:11px; color:#10b981; font-weight:600;">Recommended for Render &bull; Port 443</span>
+                                <span style="font-size:11px; color:#10b981; font-weight:600;">Port 443 &bull; 100% Free</span>
                             </label>
                             <input type="url" id="mailRelayUrlInput" class="form-control-saas" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
                             <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Dispatches emails from your Gmail account across HTTPS port 443, bypassing Render's SMTP block.</div>
@@ -2010,18 +2011,34 @@ function doGet(e) {
                     <!-- TAB 2: Brevo API (Sendinblue) -->
                     <div id="mailTabBrevo" style="display:none;">
                         <div class="form-group-saas">
-                            <label for="brevoApiKeyInput">Brevo (Sendinblue) API Key</label>
+                            <label for="brevoApiKeyInput">Brevo API Key</label>
                             <input type="password" id="brevoApiKeyInput" class="form-control-saas" placeholder="xkeysib-xxxxxxxxxxxxxxxxxxxx">
                             <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">
-                                Free 300 emails/day forever. Create a free account at <a href="https://www.brevo.com" target="_blank" style="color:var(--primary-teal-hover);">brevo.com</a> &rarr; SMTP &amp; API &rarr; Generate Key. Communicates via HTTPS Port 443.
+                                Free 300 emails/day forever. Create an account at <a href="https://www.brevo.com" target="_blank" style="color:var(--primary-teal-hover); text-decoration:underline;">brevo.com</a> &rarr; SMTP &amp; API &rarr; Generate Key. Communicates via HTTPS Port 443.
+                            </div>
+                        </div>
+                        <div class="form-group-saas" style="margin-top:10px;">
+                            <label for="brevoSenderEmailInput">Brevo Verified Sender Email</label>
+                            <input type="email" id="brevoSenderEmailInput" class="form-control-saas" placeholder="310625205313@eec.srmrmp.edu.in" value="310625205313@eec.srmrmp.edu.in">
+                            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">The email address you used/verified when creating your Brevo account.</div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Resend API -->
+                    <div id="mailTabResend" style="display:none;">
+                        <div class="form-group-saas">
+                            <label for="resendApiKeyInput">Resend API Key</label>
+                            <input type="password" id="resendApiKeyInput" class="form-control-saas" placeholder="re_xxxxxxxxxxxxxxxxxxxx">
+                            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">
+                                Free 100 emails/day. Create an account at <a href="https://resend.com" target="_blank" style="color:var(--primary-teal-hover); text-decoration:underline;">resend.com</a> &rarr; API Keys &rarr; Create Key. Communicates via HTTPS Port 443.
                             </div>
                         </div>
                     </div>
 
-                    <!-- TAB 3: Gmail SMTP -->
+                    <!-- TAB 4: Gmail SMTP -->
                     <div id="mailTabSmtp" style="display:none;">
                         <div style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#f59e0b;">
-                            ⚠️ <strong>Localhost / Paid Tier Only:</strong> Direct SMTP on port 587 is blocked by Render Free Tier. Use Google Relay on Render.
+                            ⚠️ <strong>Localhost / Paid Tier Only:</strong> Direct SMTP on port 587 is blocked by Render Free Tier. Use Google Relay, Brevo, or Resend on Render.
                         </div>
                         <div class="form-group-saas">
                             <label for="smtpUsernameInput">Gmail Sender Address</label>
