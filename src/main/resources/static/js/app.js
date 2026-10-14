@@ -10,6 +10,7 @@ let currentStudent = null;
 let selectedBook = null;
 let allBooks = [];
 let activeLoansList = [];
+let allTransactionsList = [];
 let waitlistItems = [];
 let chartCurrentFilter = '7D';
 let scannerMode = 'student'; // 'student' or 'book'
@@ -1573,6 +1574,7 @@ async function handleReturnBook(transactionId) {
 
             if (selectedBook) {
                 selectedBook = allBooks.find(b => b.id === selectedBook.id) || selectedBook;
+                renderScannedBookCard(selectedBook);
                 updateActionButtons();
             }
 
@@ -1928,9 +1930,13 @@ function switchTableTab(tab) {
    ========================================================================== */
 async function loadActiveTransactions() {
     try {
-        const res = await fetch('/api/borrow/active');
-        if (res.ok) {
-            activeLoansList = await res.json();
+        const [activeRes, historyRes] = await Promise.all([
+            fetch('/api/borrow/active'),
+            fetch('/api/borrow/history')
+        ]);
+
+        if (activeRes.ok) {
+            activeLoansList = await activeRes.json();
             const badge = document.getElementById('activeLoansCountBadge');
             if (badge) badge.textContent = activeLoansList.length;
 
@@ -1939,8 +1945,15 @@ async function loadActiveTransactions() {
             renderDashboardDueToday();
             renderRecentActivity();
         }
+
+        if (historyRes.ok) {
+            allTransactionsList = await historyRes.json();
+            if (typeof renderBorrowedPage === 'function') {
+                renderBorrowedPage();
+            }
+        }
     } catch (e) {
-        console.error('Failed to load active loans:', e);
+        console.error('Failed to load transactions:', e);
     }
 }
 
@@ -3708,15 +3721,39 @@ function renderBorrowedPage() {
     const countTotal = document.getElementById('statBorrowedTotalCount');
     const countStudents = document.getElementById('statBorrowedStudentsCount');
 
-    const totalCount = (activeLoansList && activeLoansList.length > 0) ? activeLoansList.length : 3;
-    if (countTotal) countTotal.textContent = `${totalCount} Books`;
-    if (countStudents) countStudents.textContent = `${totalCount} Students`;
+    const activeCount = (activeLoansList && activeLoansList.length) ? activeLoansList.length : 0;
+    const uniqueStudents = new Set((activeLoansList || []).map(t => t.studentId)).size;
+
+    if (countTotal) countTotal.textContent = `${activeCount} Books`;
+    if (countStudents) countStudents.textContent = `${uniqueStudents} Students`;
 
     if (!tbody) return;
 
-    if (activeLoansList && activeLoansList.length > 0) {
+    // Use allTransactionsList (from /api/borrow/history) if available, fallback to activeLoansList
+    const listToRender = (allTransactionsList && allTransactionsList.length > 0)
+        ? allTransactionsList
+        : (activeLoansList || []);
+
+    if (listToRender && listToRender.length > 0) {
         tbody.innerHTML = '';
-        activeLoansList.forEach(tx => {
+        listToRender.forEach(tx => {
+            const isReturned = (tx.status === 'RETURNED' || tx.returnDate);
+            const statusBadge = isReturned
+                ? `<span class="badge-status returned" style="background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; font-weight:700;">✓ Returned</span>`
+                : `<span class="badge-status active" style="font-weight:700;">Active Loan</span>`;
+
+            const actionBtn = isReturned
+                ? `<span style="display:inline-flex; align-items:center; gap:4px; color:#059669; font-weight:700; font-size:12px; background:#f0fdf4; padding:5px 12px; border-radius:6px; border:1px solid #bbf7d0;">
+                     ✓ Returned (${tx.returnDate || 'Completed'})
+                   </span>`
+                : `<button onclick="handleReturnBook(${tx.id})" class="btn-saas btn-saas-outline" style="padding:5px 12px; font-size:12px; font-weight:600;">
+                     ↩ Return Book
+                   </button>`;
+
+            const returnDueDisplay = isReturned
+                ? `<span style="font-family:var(--font-mono); color:#059669; font-weight:600;">Returned: ${tx.returnDate}</span>`
+                : `<span style="font-family:var(--font-mono); color:var(--accent-amber); font-weight:700;">${tx.dueDate || '14 Days'}</span>`;
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="font-family:var(--font-mono); font-weight:700; color:var(--primary-teal);">#TX-${tx.id}</td>
@@ -3726,47 +3763,17 @@ function renderBorrowedPage() {
                 </td>
                 <td>
                     <div style="font-weight:600; color:var(--text-navy);">${tx.bookTitle}</div>
+                    ${tx.bookAuthor ? `<div style="font-size:11px; color:var(--text-muted);">${tx.bookAuthor}</div>` : ''}
                 </td>
                 <td style="color:var(--text-secondary); font-size:12.5px;">${tx.issueDate || 'Today'}</td>
-                <td>
-                    <span style="font-family:var(--font-mono); color:var(--accent-amber); font-weight:700;">${tx.dueDate || '14 Days'}</span>
-                </td>
-                <td><span class="badge-status active">Active Loan</span></td>
-                <td>
-                    <button onclick="handleReturnBook(${tx.id})" class="btn-saas btn-saas-outline" style="padding:5px 12px; font-size:12px;">
-                        ↩ Return Book
-                    </button>
-                </td>
+                <td>${returnDueDisplay}</td>
+                <td>${statusBadge}</td>
+                <td>${actionBtn}</td>
             `;
             tbody.appendChild(tr);
         });
     } else {
-        tbody.innerHTML = `
-            <tr>
-                <td style="font-family:var(--font-mono); font-weight:700; color:var(--primary-teal);">#TX-101</td>
-                <td>
-                    <div style="font-weight:700; color:var(--text-navy);">Yashwanthiga</div>
-                    <div style="font-size:11.5px; color:var(--text-muted);">EECIT001 &bull; IT Dept</div>
-                </td>
-                <td><div style="font-weight:600; color:var(--text-navy);">Clean Code: Handbook of Agile Software Craftsmanship</div></td>
-                <td style="color:var(--text-secondary); font-size:12.5px;">Today</td>
-                <td><span style="font-family:var(--font-mono); color:var(--accent-amber); font-weight:700;">14 Days Later</span></td>
-                <td><span class="badge-status active">Active Loan</span></td>
-                <td><button onclick="handleReturnBook(1)" class="btn-saas btn-saas-outline" style="padding:5px 12px; font-size:12px;">↩ Return Book</button></td>
-            </tr>
-            <tr>
-                <td style="font-family:var(--font-mono); font-weight:700; color:var(--primary-teal);">#TX-102</td>
-                <td>
-                    <div style="font-weight:700; color:var(--text-navy);">Priya</div>
-                    <div style="font-size:11.5px; color:var(--text-muted);">310625205283 &bull; IT Dept</div>
-                </td>
-                <td><div style="font-weight:600; color:var(--text-navy);">Effective Java</div></td>
-                <td style="color:var(--text-secondary); font-size:12.5px;">Today</td>
-                <td><span style="font-family:var(--font-mono); color:var(--accent-amber); font-weight:700;">14 Days Later</span></td>
-                <td><span class="badge-status active">Active Loan</span></td>
-                <td><button onclick="handleReturnBook(2)" class="btn-saas btn-saas-outline" style="padding:5px 12px; font-size:12px;">↩ Return Book</button></td>
-            </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:32px;">No borrowing records found in library database. Issue a book to get started.</td></tr>`;
     }
 }
 
