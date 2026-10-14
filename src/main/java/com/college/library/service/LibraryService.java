@@ -178,7 +178,9 @@ public class LibraryService {
         tx = transactionRepository.save(tx);
 
         // Send official return receipt email to returning student
-        emailService.sendBookReturnedEmail(tx.getStudent(), book, tx.getReturnDate());
+        boolean returnEmailSent = emailService.sendBookReturnedEmail(tx.getStudent(), book, tx.getReturnDate());
+        tx.setEmailSent(returnEmailSent);
+        tx = transactionRepository.save(tx);
 
         // Check if any student is on the waiting list for this newly available book
         List<WaitlistReservation> waitingQueue = waitlistRepository

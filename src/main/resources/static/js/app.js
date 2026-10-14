@@ -1596,7 +1596,11 @@ async function handleReturnBook(transactionId) {
             if (data.waitingStudents && data.waitingStudents.length > 0) {
                 showBookReturnNotifyModal(data);
             } else {
-                showToast(`✅ Book '${data.bookTitle}' returned! Return receipt email dispatched to ${data.studentEmail}`, 'success');
+                if (data.emailSent) {
+                    showToast(`✅ Book '${data.bookTitle}' returned! Return receipt email dispatched to ${data.studentEmail}`, 'success');
+                } else {
+                    showToast(`✅ Book '${data.bookTitle}' returned to catalog! (Email pending Google Relay setup in top bar)`, 'info');
+                }
             }
         } else {
             showToast(data.message || 'Could not return book.', 'error');
@@ -1645,7 +1649,8 @@ function showBookReturnNotifyModal(data) {
 
 function closeBookReturnNotifyModal() {
     const modal = document.getElementById('bookReturnNotifyModal');
-    if (modal) modal.classList.remove('active');
+    if (!modal) return;
+    modal.classList.remove('active');
 }
 
 async function handleReturnModalNotify(reservationId, studentName) {
@@ -1660,7 +1665,12 @@ async function handleReturnModalNotify(reservationId, studentName) {
     try {
         const res = await fetch(`/api/waitlist/${reservationId}/notify`, { method: 'POST' });
         if (res.ok) {
-            showToast(`✓ Email sent to ${studentName}! They have been informed to collect the book from the library.`, 'success');
+            const data = await res.json();
+            if (data.emailSent) {
+                showToast(`✓ Real email delivered to ${studentName}! They have been informed to collect the book from the circulation desk.`, 'success');
+            } else {
+                showToast(`⚠️ Student marked as notified, but email delivery failed (port 587 blocked on Render). Configure Google Relay in Real Email settings.`, 'warning');
+            }
             if (btn) {
                 btn.className = 'btn-saas btn-saas-outline';
                 btn.style.color = 'var(--primary-emerald)';
@@ -1706,7 +1716,7 @@ function showIssueConfirmationModal(tx) {
                 <span>✅</span> Official Borrow Receipt Email Successfully Delivered to ${tx.studentEmail}!
             </div>
             <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
-                Transmitted via SMTP to student inbox. Due date: ${tx.dueDate}.
+                Transmitted via SMTP/Relay to student inbox. Due date: ${tx.dueDate}.
             </div>
         `;
     } else {
@@ -1715,8 +1725,11 @@ function showIssueConfirmationModal(tx) {
                 <span>⚠️</span> Book Issued in Database
             </div>
             <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
-                Email pending SMTP sender setup. Click 'Real Email' in the top header to configure.
+                Email pending relay configuration. On Render Cloud, click below to enable live email delivery:
             </div>
+            <button type="button" class="btn-saas btn-saas-teal" onclick="closeIssueModal(); openSettingsModal();" style="font-size:11.5px; padding:5px 12px; margin-top:6px; cursor:pointer;">
+                ⚡ Configure Google Apps Script Relay (1-Minute Setup)
+            </button>
         `;
     }
 
