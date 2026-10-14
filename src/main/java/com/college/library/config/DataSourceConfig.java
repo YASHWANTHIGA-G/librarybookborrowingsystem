@@ -36,21 +36,29 @@ public class DataSourceConfig {
 
         boolean mysqlAvailable = false;
         try {
-            // Test connection directly before initializing Hikari pool
-            DriverManager.setLoginTimeout(3);
+            // Test connection directly before initializing Hikari pool (15s timeout for cloud databases)
+            DriverManager.setLoginTimeout(15);
             try (Connection conn = DriverManager.getConnection(mysqlUrl, mysqlUser, mysqlPassword)) {
-                if (conn.isValid(2)) {
+                if (conn.isValid(10)) {
                     mysqlAvailable = true;
-                    log.info("SUCCESS: Connected to MySQL database on localhost:3306!");
+                    log.info("SUCCESS: Connected to database successfully!");
                 }
             }
         } catch (Exception ex) {
-            log.warn("MySQL connection test failed: {}", ex.getMessage());
-            log.warn("Tip: Set environment variable SPRING_DATASOURCE_PASSWORD if your local MySQL has a custom password.");
+            log.warn("Database connection test failed: {}", ex.getMessage());
+            log.warn("Tip: Set environment variable SPRING_DATASOURCE_PASSWORD if your database has a custom password.");
         }
 
         if (mysqlAvailable) {
-            activeDatabaseType = "MySQL 8.0";
+            if (mysqlUrl != null && mysqlUrl.contains("tidbcloud")) {
+                activeDatabaseType = "TiDB Cloud (Permanent)";
+            } else if (mysqlUrl != null && (mysqlUrl.contains("localhost") || mysqlUrl.contains("127.0.0.1"))) {
+                activeDatabaseType = "MySQL 8.0 (Local)";
+            } else {
+                activeDatabaseType = "Cloud MySQL (Permanent)";
+            }
+            log.info("Database Engine Active: {}", activeDatabaseType);
+
             HikariConfig config = new HikariConfig();
             config.setJdbcUrl(mysqlUrl);
             config.setUsername(mysqlUser);
@@ -58,7 +66,8 @@ public class DataSourceConfig {
             config.setDriverClassName("com.mysql.cj.jdbc.Driver");
             config.setMaximumPoolSize(10);
             config.setMinimumIdle(2);
-            config.setPoolName("MySQLLibraryPool");
+            config.setConnectionTimeout(30000);
+            config.setPoolName("PermanentLibraryPool");
             return new HikariDataSource(config);
         } else {
             log.info("==================================================================");
