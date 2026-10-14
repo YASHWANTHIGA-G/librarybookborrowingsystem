@@ -2562,17 +2562,76 @@ function handleGlobalSearch(query) {
 }
 
 /* ==========================================================================
-   REAL EMAIL DISPATCHER (SMTP Config & Live Test)
+   REAL EMAIL DISPATCHER (Multi-Provider: Google Relay / Brevo / SMTP)
    ========================================================================== */
-function updateSmtpBadge(smtpConfigured, smtpUsername) {
+let currentMailTab = 'relay';
+
+function switchMailTab(tab) {
+    currentMailTab = tab;
+    const tabRelay = document.getElementById('mailTabRelay');
+    const tabBrevo = document.getElementById('mailTabBrevo');
+    const tabSmtp = document.getElementById('mailTabSmtp');
+
+    const btnRelay = document.getElementById('tabRelayBtn');
+    const btnBrevo = document.getElementById('tabBrevoBtn');
+    const btnSmtp = document.getElementById('tabSmtpBtn');
+
+    if (tabRelay) tabRelay.style.display = (tab === 'relay') ? 'block' : 'none';
+    if (tabBrevo) tabBrevo.style.display = (tab === 'brevo') ? 'block' : 'none';
+    if (tabSmtp) tabSmtp.style.display = (tab === 'smtp') ? 'block' : 'none';
+
+    const activeStyle = 'background:var(--primary-teal); color:#fff; font-weight:600;';
+    const inactiveStyle = 'background:transparent; color:var(--text-secondary); font-weight:normal;';
+
+    if (btnRelay) btnRelay.style.cssText = (tab === 'relay') ? 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + inactiveStyle;
+    if (btnBrevo) btnBrevo.style.cssText = (tab === 'brevo') ? 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + inactiveStyle;
+    if (btnSmtp) btnSmtp.style.cssText = (tab === 'smtp') ? 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + activeStyle : 'flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:none; ' + inactiveStyle;
+}
+window.switchMailTab = switchMailTab;
+
+function toggleScriptGuide() {
+    const body = document.getElementById('scriptGuideBody');
+    const icon = document.getElementById('guideToggleIcon');
+    if (!body) return;
+    const isHidden = (body.style.display === 'none' || !body.style.display);
+    body.style.display = isHidden ? 'block' : 'none';
+    if (icon) icon.textContent = isHidden ? '▲' : '▼';
+}
+window.toggleScriptGuide = toggleScriptGuide;
+
+function copyGasScript() {
+    const code = document.getElementById('gasScriptCode');
+    const btn = document.getElementById('copyGasBtn');
+    if (!code) return;
+    navigator.clipboard.writeText(code.innerText).then(() => {
+        showToast('📋 Google Apps Script copied to clipboard!', 'success');
+        if (btn) {
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => { btn.textContent = '📋 Copy Script'; }, 2500);
+        }
+    }).catch(() => {
+        showToast('Could not auto-copy. Please select and copy the code manually.', 'info');
+    });
+}
+window.copyGasScript = copyGasScript;
+
+function updateSmtpBadge(isConfigured, username, activeMode) {
     const badge = document.getElementById('smtpStatusBadge');
     const btn = document.getElementById('openEmailSetupBtn');
     if (!badge || !btn) return;
 
-    if (smtpConfigured) {
+    if (isConfigured) {
         btn.classList.add('configured');
         badge.className = 'badge-status returned';
-        badge.textContent = `🟢 Active (${smtpUsername || 'Gmail'})`;
+        if (activeMode === 'HTTPS_RELAY') {
+            badge.textContent = '🟢 Active (Google Relay)';
+        } else if (activeMode === 'BREVO_API') {
+            badge.textContent = '🟢 Active (Brevo API)';
+        } else if (activeMode === 'RESEND_API') {
+            badge.textContent = '🟢 Active (Resend API)';
+        } else {
+            badge.textContent = `🟢 Active (${username || 'Gmail'})`;
+        }
     } else {
         btn.classList.remove('configured');
         badge.className = 'badge-status due-today';
@@ -2581,28 +2640,31 @@ function updateSmtpBadge(smtpConfigured, smtpUsername) {
 }
 
 async function handleSaveSmtp(e) {
-    e.preventDefault();
-    const username = document.getElementById('smtpUsernameInput').value.trim();
-    const password = document.getElementById('smtpPasswordInput').value.trim();
+    if (e && e.preventDefault) e.preventDefault();
+    const relayUrl = document.getElementById('mailRelayUrlInput') ? document.getElementById('mailRelayUrlInput').value.trim() : '';
+    const brevoKey = document.getElementById('brevoApiKeyInput') ? document.getElementById('brevoApiKeyInput').value.trim() : '';
+    const username = document.getElementById('smtpUsernameInput') ? document.getElementById('smtpUsernameInput').value.trim() : '';
+    const password = document.getElementById('smtpPasswordInput') ? document.getElementById('smtpPasswordInput').value.trim() : '';
 
     try {
-        const res = await fetch('/api/system/smtp/config', {
+        const res = await fetch('/api/system/mail/config', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ relayUrl, brevoKey, username, password })
         });
 
         const data = await res.json();
         if (res.ok && data.success) {
-            showToast('✅ Real email sender configured & saved permanently!', 'success');
+            showToast('✅ Real email dispatcher saved & updated successfully!', 'success');
             document.getElementById('emailSetupModal').classList.remove('active');
-            updateSmtpBadge(data.smtpConfigured, data.smtpUsername);
+            const cfg = data.mailConfig || {};
+            updateSmtpBadge(cfg.isConfigured, cfg.smtpUsername, cfg.activeMode);
         } else {
-            showToast(data.message || 'Could not save SMTP configuration.', 'error');
+            showToast(data.message || 'Could not save email configuration.', 'error');
         }
-    } catch (e) {
-        console.error('SMTP config error:', e);
-        showToast('Network error saving SMTP config.', 'error');
+    } catch (err) {
+        console.error('Email config error:', err);
+        showToast('Network error saving email config.', 'error');
     }
 }
 
@@ -2617,11 +2679,11 @@ async function handleTestRealEmail() {
     statusBox.style.background = 'var(--primary-teal-light)';
     statusBox.style.color = 'var(--primary-teal-hover)';
     statusBox.style.border = '1px solid var(--primary-teal-border)';
-    statusBox.innerHTML = `⏳ Transmitting live test email to <strong>${recipient}</strong> via SMTP...`;
+    statusBox.innerHTML = `⏳ Transmitting live test verification email to <strong>${recipient}</strong>...`;
     testBtn.disabled = true;
 
     try {
-        const res = await fetch('/api/system/smtp/test', {
+        const res = await fetch('/api/system/mail/test', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ recipient })
@@ -2638,8 +2700,13 @@ async function handleTestRealEmail() {
             statusBox.style.background = 'var(--accent-red-light)';
             statusBox.style.color = 'var(--accent-red-dark)';
             statusBox.style.border = '1px solid var(--accent-red-border)';
-            statusBox.innerHTML = `❌ <strong>Delivery Failed:</strong> ${data.message}<br><small style="color:var(--text-secondary); margin-top:4px; display:block;">Ensure 2-Step Verification is ON and you generated an App Password at myaccount.google.com/apppasswords.</small>`;
-            showToast('SMTP Delivery Failed. Check credentials.', 'error');
+
+            if (data.isRenderBlocked) {
+                statusBox.innerHTML = `❌ <strong>Render Cloud Port Block Detected:</strong><br>${data.message}<br><button type="button" class="btn-saas btn-saas-teal" style="font-size:11px; margin-top:8px; padding:4px 10px;" onclick="switchMailTab('relay')">👉 Switch to Google Relay Tab</button>`;
+            } else {
+                statusBox.innerHTML = `❌ <strong>Delivery Failed:</strong> ${data.message}`;
+            }
+            showToast(data.message || 'Email delivery failed.', 'error');
         }
     } catch (e) {
         statusBox.style.background = 'var(--accent-red-light)';
@@ -2663,7 +2730,8 @@ async function checkSystemStatus() {
             if (statusBadge) {
                 statusBadge.innerHTML = `<span class="status-dot"></span> ${dbName}`;
             }
-            updateSmtpBadge(data.smtpConfigured, data.smtpUsername);
+            const cfg = data.mailConfig || {};
+            updateSmtpBadge(data.smtpConfigured, data.smtpUsername, cfg.activeMode || data.activeMailMode);
         }
     } catch (e) {
         console.warn('System status probe error:', e);

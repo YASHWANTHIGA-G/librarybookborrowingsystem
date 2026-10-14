@@ -2,7 +2,7 @@ package com.college.library.service;
 
 import com.college.library.entity.Book;
 import com.college.library.entity.Student;
-import jakarta.mail.MessagingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +11,14 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class EmailService {
@@ -21,9 +27,26 @@ public class EmailService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
     private final JavaMailSender mailSender;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.ALWAYS)
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
+
+    @Value("${mail.relay.url:${MAIL_RELAY_URL:}}")
+    private String mailRelayUrl;
+
+    @Value("${mail.brevo.api-key:${BREVO_API_KEY:}}")
+    private String brevoApiKey;
+
+    @Value("${mail.resend.api-key:${RESEND_API_KEY:}}")
+    private String resendApiKey;
 
     @Value("${spring.mail.username:}")
     private String smtpUsername;
+
+    @Value("${spring.mail.password:}")
+    private String smtpPassword;
 
     @Value("${library.mail.from:noreply.library@college.edu}")
     private String mailFrom;
@@ -33,28 +56,77 @@ public class EmailService {
     }
 
     public synchronized void updateCredentials(String username, String password) {
-        this.smtpUsername = (username != null) ? username.trim() : "";
-        if (mailSender instanceof org.springframework.mail.javamail.JavaMailSenderImpl impl) {
-            impl.setHost("smtp.gmail.com");
-            impl.setPort(587);
-            impl.setUsername(this.smtpUsername);
-            impl.setPassword((password != null) ? password.trim().replace(" ", "") : "");
-            java.util.Properties props = impl.getJavaMailProperties();
-            props.put("mail.transport.protocol", "smtp");
-            props.put("mail.smtp.auth", "true");
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.starttls.required", "true");
-            props.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3");
-            props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
-            props.put("mail.smtp.localhost", "localhost");
-            props.put("mail.smtp.connectiontimeout", "15000");
-            props.put("mail.smtp.timeout", "15000");
-            props.put("mail.smtp.writetimeout", "15000");
+        updateMailConfig(this.mailRelayUrl, this.brevoApiKey, this.resendApiKey, username, password);
+    }
+
+    public synchronized void updateMailConfig(String relayUrl, String brevoKey, String resendKey, String username, String password) {
+        if (relayUrl != null) this.mailRelayUrl = relayUrl.trim();
+        if (brevoKey != null) this.brevoApiKey = brevoKey.trim();
+        if (resendKey != null) this.resendApiKey = resendKey.trim();
+        if (username != null) {
+            this.smtpUsername = username.trim();
+            this.smtpPassword = (password != null) ? password.trim().replace(" ", "") : "";
+            if (mailSender instanceof org.springframework.mail.javamail.JavaMailSenderImpl impl) {
+                impl.setHost("smtp.gmail.com");
+                impl.setPort(587);
+                impl.setUsername(this.smtpUsername);
+                impl.setPassword(this.smtpPassword);
+                Properties props = impl.getJavaMailProperties();
+                props.put("mail.transport.protocol", "smtp");
+                props.put("mail.smtp.auth", "true");
+                props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.starttls.required", "true");
+                props.put("mail.smtp.ssl.protocols", "TLSv1.2 TLSv1.3");
+                props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+                props.put("mail.smtp.localhost", "localhost");
+                props.put("mail.smtp.connectiontimeout", "5000");
+                props.put("mail.smtp.timeout", "5000");
+                props.put("mail.smtp.writetimeout", "5000");
+            }
         }
     }
 
     public String getSmtpUsername() {
         return smtpUsername;
+    }
+
+    public String getMailRelayUrl() {
+        return mailRelayUrl;
+    }
+
+    public String getBrevoApiKey() {
+        return brevoApiKey;
+    }
+
+    public boolean isSmtpConfigured() {
+        return (mailRelayUrl != null && !mailRelayUrl.isBlank()) ||
+               (brevoApiKey != null && !brevoApiKey.isBlank()) ||
+               (resendApiKey != null && !resendApiKey.isBlank()) ||
+               (smtpUsername != null && !smtpUsername.isBlank());
+    }
+
+    public Map<String, Object> getMailConfigStatus() {
+        Map<String, Object> map = new HashMap<>();
+        boolean relaySet = mailRelayUrl != null && !mailRelayUrl.isBlank();
+        boolean brevoSet = brevoApiKey != null && !brevoApiKey.isBlank();
+        boolean resendSet = resendApiKey != null && !resendApiKey.isBlank();
+        boolean smtpSet = smtpUsername != null && !smtpUsername.isBlank();
+
+        String activeMode = "NONE";
+        if (relaySet) activeMode = "HTTPS_RELAY";
+        else if (brevoSet) activeMode = "BREVO_API";
+        else if (resendSet) activeMode = "RESEND_API";
+        else if (smtpSet) activeMode = "SMTP";
+
+        map.put("activeMode", activeMode);
+        map.put("relayConfigured", relaySet);
+        map.put("brevoConfigured", brevoSet);
+        map.put("resendConfigured", resendSet);
+        map.put("smtpConfigured", smtpSet);
+        map.put("smtpUsername", maskEmail(smtpUsername));
+        map.put("mailRelayUrlMasked", maskUrl(mailRelayUrl));
+        map.put("isConfigured", relaySet || brevoSet || resendSet || smtpSet);
+        return map;
     }
 
     /**
@@ -181,102 +253,334 @@ public class EmailService {
         return dispatchEmail(recipientEmail, student.getName(), subject, "BOOK_AVAILABLE", textContent, htmlContent);
     }
 
-    private boolean dispatchEmail(String recipient, String studentName, String subject, String type, String textContent, String htmlContent) {
-        boolean sentViaSmtp = false;
+    /**
+     * Sends an official due date reminder email to student whose book is due today.
+     */
+    public boolean sendDueReminderEmail(String studentEmail, String studentName, String studentId, String bookTitle, String dueDate, String fineRate) {
+        if (studentEmail == null || studentEmail.isBlank()) {
+            log.warn("Cannot send due reminder: Student email is missing.");
+            return false;
+        }
 
+        String recipientEmail = studentEmail.trim();
+        String subject = "⏰ Return Reminder: '" + bookTitle + "' is Due Today - College Library";
+
+        String textContent = String.format(
+                "College Library Book Return Reminder\n\n" +
+                "Student: %s (%s)\n" +
+                "Book: %s\n" +
+                "Due Cutoff: %s (Today by 17:00 IST)\n" +
+                "Same-Day Fee: ₹0.00 (Grace period active until 5:00 PM)\n" +
+                "Late Fine Rate: %s starting tomorrow morning\n\n" +
+                "Please return the book to the library circulation desk before 17:00 IST today.",
+                studentName, studentId,
+                bookTitle,
+                dueDate,
+                fineRate
+        );
+
+        String htmlContent = buildDueReminderHtml(studentName, studentId, bookTitle, dueDate, fineRate);
+
+        return dispatchEmail(recipientEmail, studentName, subject, "DUE_TODAY_REMINDER", textContent, htmlContent);
+    }
+
+    /**
+     * Multi-provider email dispatch engine:
+     * 1. Google Apps Script HTTPS Relay (Bypasses Render's port blocks via HTTPS port 443)
+     * 2. Brevo HTTP API (Port 443)
+     * 3. Resend HTTP API (Port 443)
+     * 4. JavaMailSender SMTP (Localhost / Paid Render instances)
+     */
+    private boolean dispatchEmail(String recipient, String studentName, String subject, String type, String textContent, String htmlContent) {
+        // Priority 1: Google Apps Script Web App HTTPS Relay
+        if (mailRelayUrl != null && !mailRelayUrl.isBlank()) {
+            boolean sent = sendViaHttpRelay(recipient, studentName, subject, textContent, htmlContent);
+            if (sent) return true;
+            log.warn("HTTPS Relay failed to dispatch email. Trying fallback methods if configured...");
+        }
+
+        // Priority 2: Brevo HTTP API
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
+            boolean sent = sendViaBrevo(recipient, studentName, subject, textContent, htmlContent);
+            if (sent) return true;
+            log.warn("Brevo API failed to dispatch email. Trying fallback methods if configured...");
+        }
+
+        // Priority 3: Resend HTTP API
+        if (resendApiKey != null && !resendApiKey.isBlank()) {
+            boolean sent = sendViaResend(recipient, studentName, subject, textContent, htmlContent);
+            if (sent) return true;
+            log.warn("Resend API failed to dispatch email. Trying fallback methods if configured...");
+        }
+
+        // Priority 4: JavaMailSender SMTP
+        if (smtpUsername != null && !smtpUsername.isBlank()) {
+            return sendViaSmtp(recipient, studentName, subject, textContent, htmlContent);
+        }
+
+        log.warn(">>> NO EMAIL SENDER CONFIGURED: Cannot send email to {}. Please configure Google Apps Script Web App URL or SMTP credentials.", recipient);
+        return false;
+    }
+
+    private boolean sendViaHttpRelay(String recipient, String studentName, String subject, String textContent, String htmlContent) {
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("to", recipient);
+            payload.put("studentName", studentName);
+            payload.put("subject", subject);
+            payload.put("htmlBody", htmlContent);
+            payload.put("body", textContent);
+            if (smtpUsername != null && !smtpUsername.isBlank()) {
+                payload.put("from", smtpUsername);
+                if (!smtpUsername.equalsIgnoreCase(recipient)) {
+                    payload.put("bcc", smtpUsername);
+                }
+            }
+
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(mailRelayUrl.trim()))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .timeout(Duration.ofSeconds(15))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info(">>> REAL EMAIL DELIVERED via Google Apps Script HTTPS Relay to {} [Subject: {}]", recipient, subject);
+                return true;
+            } else {
+                log.error(">>> Google Apps Script HTTPS Relay failed with HTTP {}: {}", response.statusCode(), response.body());
+                return false;
+            }
+        } catch (Exception ex) {
+            log.error(">>> Google Apps Script HTTPS Relay error sending to {}: {}", recipient, ex.getMessage());
+            return false;
+        }
+    }
+
+    private boolean sendViaBrevo(String recipient, String studentName, String subject, String textContent, String htmlContent) {
+        try {
+            String senderEmail = (smtpUsername != null && smtpUsername.contains("@")) ? smtpUsername : "noreply.library@college.edu";
+            Map<String, Object> sender = Map.of("name", "College Library Management System", "email", senderEmail);
+            Map<String, Object> toUser = Map.of("email", recipient, "name", studentName != null ? studentName : recipient);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("sender", sender);
+            payload.put("to", List.of(toUser));
+            payload.put("subject", subject);
+            payload.put("htmlContent", htmlContent);
+            payload.put("textContent", textContent);
+
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                    .header("api-key", brevoApiKey.trim())
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .timeout(Duration.ofSeconds(15))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info(">>> REAL EMAIL DELIVERED via Brevo API to {} [Subject: {}]", recipient, subject);
+                return true;
+            } else {
+                log.error(">>> Brevo API failed with HTTP {}: {}", response.statusCode(), response.body());
+                return false;
+            }
+        } catch (Exception ex) {
+            log.error(">>> Brevo API error sending to {}: {}", recipient, ex.getMessage());
+            return false;
+        }
+    }
+
+    private boolean sendViaResend(String recipient, String studentName, String subject, String textContent, String htmlContent) {
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("from", "College Library <onboarding@resend.dev>");
+            payload.put("to", List.of(recipient));
+            payload.put("subject", subject);
+            payload.put("html", htmlContent);
+            payload.put("text", textContent);
+
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.resend.com/emails"))
+                    .header("Authorization", "Bearer " + resendApiKey.trim())
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .timeout(Duration.ofSeconds(15))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                log.info(">>> REAL EMAIL DELIVERED via Resend API to {} [Subject: {}]", recipient, subject);
+                return true;
+            } else {
+                log.error(">>> Resend API failed with HTTP {}: {}", response.statusCode(), response.body());
+                return false;
+            }
+        } catch (Exception ex) {
+            log.error(">>> Resend API error sending to {}: {}", recipient, ex.getMessage());
+            return false;
+        }
+    }
+
+    private boolean sendViaSmtp(String recipient, String studentName, String subject, String textContent, String htmlContent) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(smtpUsername, "College Library Management System");
+            helper.setTo(recipient);
+
+            if (smtpUsername != null && !smtpUsername.isBlank() && !smtpUsername.equalsIgnoreCase(recipient)) {
+                try {
+                    helper.setBcc(smtpUsername);
+                } catch (Exception ignored) {}
+            }
+
+            helper.setSubject(subject);
+            helper.setText(textContent, htmlContent);
+
+            mailSender.send(message);
+            log.info(">>> REAL EMAIL DELIVERED via SMTP to {} [Subject: {}]", recipient, subject);
+            return true;
+        } catch (Exception ex) {
+            log.error(">>> REAL EMAIL SMTP DELIVERY FAILED to {}: {}", recipient, ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Sends a live test email to verify connection and delivery to real inboxes.
+     */
+    public Map<String, Object> sendTestEmail(String testRecipient) {
+        Map<String, Object> result = new HashMap<>();
+        String target = (testRecipient != null && !testRecipient.isBlank()) ? testRecipient.trim() : "310625205283@eec.srmrmp.edu.in";
+        String senderDisplay = (smtpUsername != null && !smtpUsername.isBlank()) ? smtpUsername : "library@college.edu";
+        String subject = "🧪 College Library System - Real Email Test";
+        String html = buildTestHtml(senderDisplay, target);
+        String text = "College Library Real Email Test delivered to " + target;
+
+        // 1. Google Apps Script Web App HTTPS Relay
+        if (mailRelayUrl != null && !mailRelayUrl.isBlank()) {
+            boolean success = sendViaHttpRelay(target, "Library Tester", subject, text, html);
+            if (success) {
+                result.put("success", true);
+                result.put("provider", "HTTPS_RELAY");
+                result.put("message", "Real test email delivered via Google Apps Script HTTPS Relay to " + target + "! Check your inbox (or Spam folder).");
+                return result;
+            } else {
+                result.put("success", false);
+                result.put("provider", "HTTPS_RELAY");
+                result.put("message", "Google Apps Script Relay failed to deliver. Please check your Web App URL, make sure 'Who has access' is set to 'Anyone', and that you used the /exec URL.");
+                return result;
+            }
+        }
+
+        // 2. Brevo HTTP API
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
+            boolean success = sendViaBrevo(target, "Library Tester", subject, text, html);
+            if (success) {
+                result.put("success", true);
+                result.put("provider", "BREVO_API");
+                result.put("message", "Real test email delivered via Brevo API to " + target + "! Check your inbox.");
+                return result;
+            } else {
+                result.put("success", false);
+                result.put("provider", "BREVO_API");
+                result.put("message", "Brevo API delivery failed. Please check your Brevo API key.");
+                return result;
+            }
+        }
+
+        // 3. Resend HTTP API
+        if (resendApiKey != null && !resendApiKey.isBlank()) {
+            boolean success = sendViaResend(target, "Library Tester", subject, text, html);
+            if (success) {
+                result.put("success", true);
+                result.put("provider", "RESEND_API");
+                result.put("message", "Real test email delivered via Resend API to " + target + "!");
+                return result;
+            } else {
+                result.put("success", false);
+                result.put("provider", "RESEND_API");
+                result.put("message", "Resend API delivery failed. Please check your Resend API key.");
+                return result;
+            }
+        }
+
+        // 4. JavaMailSender SMTP
         if (smtpUsername != null && !smtpUsername.isBlank()) {
             try {
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
                 helper.setFrom(smtpUsername, "College Library Management System");
-                helper.setTo(recipient);
-
-                // Ensure the library administrator/sender account also receives a copy of every issued book notice
-                if (smtpUsername != null && !smtpUsername.isBlank() && !smtpUsername.equalsIgnoreCase(recipient)) {
-                    try {
-                        helper.setBcc(smtpUsername);
-                    } catch (Exception ignored) {}
-                }
-
+                helper.setTo(target);
                 helper.setSubject(subject);
-                helper.setText(textContent, htmlContent);
-
+                helper.setText(text, html);
                 mailSender.send(message);
-                sentViaSmtp = true;
-                log.info(">>> REAL EMAIL DELIVERED via SMTP to {} [Subject: {}]", recipient, subject);
+
+                result.put("success", true);
+                result.put("provider", "SMTP");
+                result.put("message", "Real test email delivered via SMTP to " + target + "! Check your inbox (or Spam folder).");
+                return result;
             } catch (Exception ex) {
-                log.error(">>> REAL EMAIL SMTP DELIVERY FAILED to {}: {}", recipient, ex.getMessage());
+                String errMsg = ex.getMessage();
+                boolean isRenderBlocked = (errMsg != null && (errMsg.contains("Connect timed out") || errMsg.contains("SocketTimeoutException") || errMsg.contains("Connection refused")));
+                result.put("success", false);
+                result.put("provider", "SMTP");
+                result.put("isRenderBlocked", isRenderBlocked);
+                if (isRenderBlocked) {
+                    result.put("message", "Render Free Tier blocks outbound SMTP ports 25, 465, and 587. Please use the Google Apps Script HTTPS Relay URL (or Brevo API Key) to send real emails from Render over HTTPS port 443.");
+                } else {
+                    result.put("message", "SMTP Delivery Failed: " + errMsg);
+                }
+                return result;
             }
-        } else {
-            log.warn(">>> SMTP SENDER NOT CONFIGURED: Cannot send real email to {}. Please configure your Gmail credentials in the top navigation bar.", recipient);
         }
 
-        return sentViaSmtp;
+        result.put("success", false);
+        result.put("provider", "NONE");
+        result.put("message", "No email delivery method configured. Please enter a Google Apps Script Relay URL, Brevo API key, or SMTP credentials.");
+        return result;
     }
 
-    /**
-     * Sends a live test email to verify SMTP connection and delivery to real student inboxes.
-     */
-    public java.util.Map<String, Object> sendTestEmail(String testRecipient) {
-        java.util.Map<String, Object> result = new java.util.HashMap<>();
-        if (!isSmtpConfigured()) {
-            result.put("success", false);
-            result.put("message", "SMTP credentials not configured. Please enter your Gmail address and 16-character App Password.");
-            return result;
-        }
-
-        String target = (testRecipient != null && !testRecipient.isBlank()) ? testRecipient.trim() : "310625205283@eec.srmrmp.edu.in";
-
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(smtpUsername, "College Library Management System");
-            helper.setTo(target);
-            helper.setSubject("🧪 College Library System - Real Email Test");
-
-            String html = """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <style>
-                        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:#0f172a; color:#f8fafc; padding:24px; }
-                        .box { max-width:540px; margin:0 auto; background:#1e293b; border-radius:14px; padding:28px; border:1px solid rgba(255,255,255,0.1); }
-                        .badge { background:rgba(16,185,129,0.2); color:#34d399; font-size:12px; font-weight:700; padding:4px 10px; border-radius:12px; display:inline-block; margin-bottom:12px; }
-                        h2 { color:#fff; margin-top:0; }
-                        p { color:#cbd5e1; line-height:1.6; font-size:14px; }
-                        .details { background:#0f172a; border-radius:8px; padding:14px; font-family:monospace; font-size:13px; color:#38bdf8; margin:16px 0; }
-                    </style>
-                </head>
-                <body>
-                    <div class="box">
-                        <div class="badge">LIVE SMTP DELIVERY CONFIRMED</div>
-                        <h2>College Library Email Dispatcher</h2>
-                        <p>Hello! This is a live verification email proving that the <strong>College Library Management System</strong> is successfully sending real emails across the internet.</p>
-                        <div class="details">
-                            Sender: %s<br>
-                            Recipient: %s<br>
-                            Status: Verified Real-Time Transmission
-                        </div>
-                        <p>Real-time notifications for book loans, returns, and priority waitlist alerts will be delivered to student inboxes.</p>
-                        <p style="font-size:12px; color:#64748b; margin-top:24px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">Easwari Engineering College &bull; SRM RMP Campus Library</p>
+    private String buildTestHtml(String sender, String recipient) {
+        return String.format("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:#0f172a; color:#f8fafc; padding:24px; }
+                    .box { max-width:540px; margin:0 auto; background:#1e293b; border-radius:14px; padding:28px; border:1px solid rgba(255,255,255,0.1); }
+                    .badge { background:rgba(16,185,129,0.2); color:#34d399; font-size:12px; font-weight:700; padding:4px 10px; border-radius:12px; display:inline-block; margin-bottom:12px; }
+                    h2 { color:#fff; margin-top:0; }
+                    p { color:#cbd5e1; line-height:1.6; font-size:14px; }
+                    .details { background:#0f172a; border-radius:8px; padding:14px; font-family:monospace; font-size:13px; color:#38bdf8; margin:16px 0; }
+                </style>
+            </head>
+            <body>
+                <div class="box">
+                    <div class="badge">LIVE EMAIL DELIVERY CONFIRMED</div>
+                    <h2>College Library Email Dispatcher</h2>
+                    <p>Hello! This is a live verification email proving that the <strong>College Library Management System</strong> is successfully sending real emails across the internet from Render!</p>
+                    <div class="details">
+                        Sender: %s<br>
+                        Recipient: %s<br>
+                        Status: Verified Real-Time Transmission
                     </div>
-                </body>
-                </html>
-            """.formatted(smtpUsername, target);
-
-            helper.setText("Real email delivery test successful! Sent to " + target, html);
-            mailSender.send(message);
-
-            log.info(">>> TEST EMAIL DELIVERED SUCCESSFULLY to {} via SMTP", target);
-            result.put("success", true);
-            result.put("message", "Real test email delivered to " + target + "! Check your inbox (or Spam folder).");
-        } catch (Exception ex) {
-            log.error(">>> TEST EMAIL FAILED to {}: {}", target, ex.getMessage());
-            result.put("success", false);
-            result.put("message", "SMTP Delivery Failed: " + ex.getMessage());
-        }
-        return result;
+                    <p>Real-time notifications for book loans, returns, and priority waitlist alerts will be delivered to student inboxes.</p>
+                    <p style="font-size:12px; color:#64748b; margin-top:24px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">Easwari Engineering College &bull; SRM RMP Campus Library</p>
+                </div>
+            </body>
+            </html>
+        """, sender, recipient);
     }
 
     private String buildIssuedHtml(Student student, Book book, String issueDate, String dueDate) {
@@ -478,41 +782,6 @@ public class EmailService {
         );
     }
 
-    public boolean isSmtpConfigured() {
-        return smtpUsername != null && !smtpUsername.isBlank();
-    }
-
-    /**
-     * Sends an official due date reminder email to student whose book is due today.
-     */
-    public boolean sendDueReminderEmail(String studentEmail, String studentName, String studentId, String bookTitle, String dueDate, String fineRate) {
-        if (studentEmail == null || studentEmail.isBlank()) {
-            log.warn("Cannot send due reminder: Student email is missing.");
-            return false;
-        }
-
-        String recipientEmail = studentEmail.trim();
-        String subject = "⏰ Return Reminder: '" + bookTitle + "' is Due Today - College Library";
-
-        String textContent = String.format(
-                "College Library Book Return Reminder\n\n" +
-                "Student: %s (%s)\n" +
-                "Book: %s\n" +
-                "Due Cutoff: %s (Today by 17:00 IST)\n" +
-                "Same-Day Fee: ₹0.00 (Grace period active until 5:00 PM)\n" +
-                "Late Fine Rate: %s starting tomorrow morning\n\n" +
-                "Please return the book to the library circulation desk before 17:00 IST today.",
-                studentName, studentId,
-                bookTitle,
-                dueDate,
-                fineRate
-        );
-
-        String htmlContent = buildDueReminderHtml(studentName, studentId, bookTitle, dueDate, fineRate);
-
-        return dispatchEmail(recipientEmail, studentName, subject, "DUE_TODAY_REMINDER", textContent, htmlContent);
-    }
-
     private String buildDueReminderHtml(String studentName, String studentId, String bookTitle, String dueDate, String fineRate) {
         return String.format("""
             <!DOCTYPE html>
@@ -563,5 +832,18 @@ public class EmailService {
                 dueDate,
                 fineRate
         );
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || email.isBlank()) return "";
+        int atIdx = email.indexOf('@');
+        if (atIdx <= 1) return email;
+        return email.substring(0, 2) + "***" + email.substring(atIdx);
+    }
+
+    private String maskUrl(String url) {
+        if (url == null || url.isBlank()) return "";
+        if (url.length() <= 25) return url;
+        return url.substring(0, 20) + "..." + url.substring(url.length() - 8);
     }
 }
